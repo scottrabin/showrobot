@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+# ensure ShowRobot's lib directory is in Ruby's load path
+$LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib') unless $LOAD_PATH.include?(File.dirname(__FILE__) + '/../lib')
+
+# dependencies
+require 'trollop'
+require 'showrobot'
+
+# parse options
+options = Trollop::options do
+	opt :identify, "Identify a show from the filename", :default => false
+	opt :duration, "Determine the length of a video file", :default => false
+	opt :episode, "Determine the season and episode of a file from the filename", :default => false
+end
+files = ARGV # Trollop modifies this, all that's left is the list of files
+
+files.select { |file| ShowRobot::MediaFile.isvideo? file }.each do |file|
+	puts "Processing file #{file}"
+	media = ShowRobot::MediaFile.load file
+
+	if options[:identify]
+		puts media.nameGuess
+	end
+	if options[:duration]
+		puts media.duration
+	end
+	if options[:episode]
+		puts "Season: #{media.season}, Episode: #{media.episode}"
+	end
+end

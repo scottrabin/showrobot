@@ -18,14 +18,11 @@ files = ARGV # Trollop modifies this, all that's left is the list of files
 files.select { |file| ShowRobot::MediaFile.isvideo? file }.each do |file|
 	puts "Processing file #{file}"
 	media = ShowRobot::MediaFile.load file
+	data = Array.new
 
-	if options[:identify]
-		puts media.nameGuess
-	end
-	if options[:duration]
-		puts media.duration
-	end
-	if options[:episode]
-		puts "Season: #{media.season}, Episode: #{media.episode}"
-	end
+	data << media.name_guess if options[:identify]
+	data << media.duration   if options[:duration]
+	data << media.season << media.episode if options[:episode]
+
+	puts data.join "\t"
 end

@@ -24,31 +24,25 @@ module ShowRobot
 		end
 
 		def season
-			self.parse
-			@season
+			parse[:season]
 		end
 
 		def episode
-			self.parse
-			@episode
+			parse[:episode]
 		end
 
-		attr_accessor :nameGuess
+		def name_guess
+			@name_guess ||= parse[:name_guess].gsub(/[^a-zA-Z0-9]/, ' ').gsub(/\s+/, ' ').strip
+		end
 
 		protected
 		def initialize fileName
-			@fileName = File.basename(fileName)
-			@nameGuess = @fileName.dup
+			@fileName = fileName
 		end
 
 		# parses a file name for the constituent parts
 		def parse
-			if @parse.nil?
-				@season, @episode, matchStart, matchLength = ShowRobot.get_season_episode(@fileName)
-				@nameGuess[matchStart, matchLength] = ''
-				@parse = true
-			end
-			[@season, @episode]
+			@parse ||= ShowRobot.parse_filename File.basename(@fileName)
 		end
 
 		private

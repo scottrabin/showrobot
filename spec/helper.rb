@@ -7,12 +7,21 @@ rescue Bundler::BundlerError => e
   $stderr.puts "Run `bundle install` to install missing gems"
   exit e.status_code
 end
-require 'test/unit'
-require 'shoulda'
 
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
-$LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'showrobot'
 
-class Test::Unit::TestCase
+module ShowRobotHelper
+	def with_file fileName, &block
+		describe "with file #{fileName}" do
+			subject do
+				ShowRobot::MediaFile.load fileName
+			end
+
+			instance_eval &block
+		end
+	end
+end
+
+RSpec.configure do |c|
+	c.extend ShowRobotHelper
 end

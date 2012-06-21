@@ -12,11 +12,12 @@ options = Trollop::options do
 	opt :identify, "Identify a show from the filename", :default => false
 	opt :duration, "Determine the length of a video file", :default => false
 	opt :episode, "Determine the season and episode of a file from the filename", :default => false
+	opt :quiet, "Suppress information messages", :default => false
 end
 files = ARGV # Trollop modifies this, all that's left is the list of files
 
 files.select { |file| ShowRobot::MediaFile.isvideo? file }.each do |file|
-	puts "Processing file #{file}"
+	puts "Processing file #{file}" if not options[:quiet]
 	media = ShowRobot::MediaFile.load file
 	data = Array.new
 
@@ -24,5 +25,5 @@ files.select { |file| ShowRobot::MediaFile.isvideo? file }.each do |file|
 	data << media.duration   if options[:duration]
 	data << media.season << media.episode if options[:episode]
 
-	puts data.join "\t"
+	print data.join "\t"
 end

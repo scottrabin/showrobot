@@ -4,7 +4,9 @@ module ShowRobot
 		# S01E02
 		/s(?<season>\d{1,4}).?(?<episode>\d{1,4})/i,
 		# season01episode02
-		/season\s*(?<season>\d{1,4})\sepisode\s*(?<episode>\d{1,4})/i
+		/season\s*(?<season>\d{1,4})\sepisode\s*(?<episode>\d{1,4})/i,
+		# sxe
+		/\D(?<season>\d{1,4})x(?<episode>\d{1,4})\D/
 	]
 
 	# parse the name of a file into best-guess parts
@@ -15,11 +17,14 @@ module ShowRobot
 			{
 				:name_guess => fileName[0, fileName.index($&)],
 				:year		=> ShowRobot.file_get_year(fileName),
-				:season		=> $~['season'],
-				:episode	=> $~['episode']
+				:season		=> $~['season'].to_i,
+				:episode	=> $~['episode'].to_i
 			}
 		else
 			# probably a movie
+			{
+				:name_guess => fileName
+			}
 		end
 
 	end

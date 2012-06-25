@@ -6,7 +6,7 @@ module ShowRobot
 	# ShowRobot constants
 
 	# verbosity of output
-	VERBOSE = true unless defined?(::ShowRobot::USE_CACHE)
+	VERBOSE = true unless defined?(::ShowRobot::VERBOSE)
 	# Determines if ShowRobot will attempt to use the query cache
 	USE_CACHE = true unless defined?(::ShowRobot::USE_CACHE)
 	# Determines the directory ShowRobot will use for the query cache

@@ -1,7 +1,8 @@
 module ShowRobot
 
 	class TheTVDB < Datasource
-		DB_NAME = "The TVDB"
+		DB_NAME		= "The TVDB"
+		DATA_TYPE	= :xml
 
 		def match_query
 			"http://www.thetvdb.com/api/GetSeries.php?seriesname=#{ShowRobot.url_encode @mediaFile.name_guess}&language=en"
@@ -9,13 +10,12 @@ module ShowRobot
 
 		# Returns a list of series related to the media file
 		def series
-			super()
-
-			Hash[ShowRobot.fetch(:xml, match_query).find('//Series').collect { |series| [series.find('SeriesName').first.content, series] }]
+			super do |xml|
+				xml.find('//Series').collect { |series| {:name => series.find('SeriesName').first.content, :source => series} }
+			end
 		end
 
 		def episode
-			puts "  Fetching #{@mediaFile.name_guess} from #{DB_NAME} (#{match_query})" if ShowRobot::VERBOSE
 
 		end
 

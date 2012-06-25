@@ -9,13 +9,16 @@ require 'showrobot'
 
 # parse options
 options = Trollop::options do
-	opt :identify, "Identify a show from the filename", :default => false
-	opt :duration, "Determine the length of a video file", :default => false
-	opt :episode, "Determine the season and episode of a file from the filename", :default => false
+	# Media identification options
+	opt :identify, "Identify a show from the filename", :default => false, :short => :i
 	opt :database, "Use the specified database for the search", :default => 'tvrage', :short => :d
-	opt :fetch, "Fetch matches from the specified database", :default => false
-	opt :verbose, "Show detailed information messages", :default => false
 
+	# Media file parsing options
+	opt :duration, "Determine the length of a video file", :default => false, :short => :l
+	opt :episode, "Determine the season and episode of a file from the filename", :default => false
+
+	# Causes ShowRobot to display additional debugging information
+	opt :verbose, "Show detailed information messages", :default => false
 	# prompts user to choose amongst various options instead of deferring to the first
 	opt :prompt, "Prompt for media file matches", :default => false, :short => :p
 end

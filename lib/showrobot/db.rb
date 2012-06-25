@@ -6,7 +6,7 @@ module ShowRobot
 		end
 
 		def series
-			puts "  Fetching series data for [ #{@mediaFile.name_guess} ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot.verbose
+			puts "Fetching series data for [ #{@mediaFile.name_guess} ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot.verbose
 		end
 	end
 

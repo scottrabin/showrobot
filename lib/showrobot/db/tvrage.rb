@@ -12,7 +12,7 @@ module ShowRobot
 		end
 
 		def fetch
-			puts "  Fetching #{@mediaFile.name_guess} from #{DB_NAME} (#{match_query})" if ShowRobot.verbose
+			puts "  Fetching #{@mediaFile.name_guess} from #{DB_NAME} (#{match_query})" if ShowRobot::VERBOSE
 
 			doc = XML::Parser.string(open(match_query).read).parse
 
@@ -21,11 +21,11 @@ module ShowRobot
 			@showName = bestMatch.find('name').first.content
 			@showId = bestMatch.find('showid').first.content
 
-			puts "    --> Query: [ #{@mediaFile.name_guess} ] Match: [ #{@showName} ]@#{@showId}" if ShowRobot.verbose
+			puts "    --> Query: [ #{@mediaFile.name_guess} ] Match: [ #{@showName} ]@#{@showId}" if ShowRobot::VERBOSE
 		end
 
 		def episode
-			puts "  Fetching episode list for #{show_name}@#{show_id} (#{episode_query})" if ShowRobot.verbose
+			puts "  Fetching episode list for #{show_name}@#{show_id} (#{episode_query})" if ShowRobot::VERBOSE
 
 			puts fetch(:xml, episode_query).find("//episode[seasonnum/.=#{@mediaFile.season} and epnum/.=#{@mediaFile.episode}]")
 		end

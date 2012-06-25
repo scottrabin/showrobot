@@ -15,7 +15,7 @@ module ShowRobot
 		end
 
 		def episode
-			puts "  Fetching #{@mediaFile.name_guess} from #{DB_NAME} (#{match_query})" if ShowRobot.verbose
+			puts "  Fetching #{@mediaFile.name_guess} from #{DB_NAME} (#{match_query})" if ShowRobot::VERBOSE
 
 		end
 

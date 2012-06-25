@@ -5,6 +5,8 @@ module ShowRobot
 
 	# ShowRobot constants
 
+	# verbosity of output
+	VERBOSE = true unless defined?(::ShowRobot::USE_CACHE)
 	# Determines if ShowRobot will attempt to use the query cache
 	USE_CACHE = true unless defined?(::ShowRobot::USE_CACHE)
 	# Determines the directory ShowRobot will use for the query cache
@@ -18,12 +20,6 @@ module ShowRobot
 		else
 			FileUtils.mkdir_p CACHE_DIRECTORY
 		end
-	end
-
-	class << self
-		# verbosity of output
-		attr_accessor :verbose
-
 	end
 
 end

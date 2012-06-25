@@ -39,12 +39,12 @@ module ShowRobot
 			parse[:episode]
 		end
 
-		def series database
-			ShowRobot.datasource_for(database).new(self).series
-		end
-
 		def name_guess
 			@name_guess ||= parse[:name_guess].gsub(/[^a-zA-Z0-9]/, ' ').gsub(/\s+/, ' ').strip
+		end
+
+		def match database
+			ShowRobot.datasource_for(database).new(self)
 		end
 
 		protected

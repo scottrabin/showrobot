@@ -7,12 +7,12 @@ module ShowRobot
 
 		# returns a list of series matching the given file
 		def series
-			puts "Fetching series data for [ #{@mediaFile.name_guess} ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot::VERBOSE
+			puts "Fetching series data for [ #{@mediaFile.name_guess} ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot::VERBOSE and @series.nil?
 
-			Hash[(yield ShowRobot.fetch(self.class::DATA_TYPE, match_query)).collect { |hash| [hash[:name], hash[:source]] }]
+			@series ||= Hash[(yield ShowRobot.fetch(self.class::DATA_TYPE, match_query)).collect { |hash| [hash[:name], hash[:source]] }]
 		end
 
-		def episode
+		def episodes
 			puts "Fetching #{@mediaFile.name_guess} from #{self.class::DB_NAME} (#{match_query})" if ShowRobot::VERBOSE
 		end
 	end

@@ -32,7 +32,7 @@ module ShowRobot
 		end
 
 		def fetch_matches database
-			puts ShowRobot.datasource_for(database).new(self).episodes
+			puts ShowRobot.datasource_for(database).new(self).episode
 		end
 
 		def name_guess

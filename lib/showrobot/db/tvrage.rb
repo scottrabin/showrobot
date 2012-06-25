@@ -1,6 +1,4 @@
 module ShowRobot
-	require 'xml'
-	require 'open-uri'
 
 	class TVRage < Datasource
 		DB_NAME = 'TVRage'
@@ -30,11 +28,10 @@ module ShowRobot
 			puts "    --> Query: [ #{@mediaFile.name_guess} ] Match: [ #{@showName} ]@#{@showId}" if ShowRobot.verbose
 		end
 
-		def episodes
-			puts "  Fetching episode list for #{show_name}@#{show_id} (#{episode_query})"
+		def episode
+			puts "  Fetching episode list for #{show_name}@#{show_id} (#{episode_query})" if ShowRobot.verbose
 
-			doc = XML::Parser.string(open(episode_query).read).parse
-
+			puts fetch(:xml, episode_query).find("//episode[seasonnum/.=#{@mediaFile.season} and epnum/.=#{@mediaFile.episode}]")
 		end
 
 		def show_name

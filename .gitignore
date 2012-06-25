@@ -14,3 +14,6 @@ doc
 
 # ShowRobot cache
 .showrobot_cache
+
+# Gemfile lock, per numerous recommendations
+Gemfile.lock

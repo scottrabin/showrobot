@@ -31,6 +31,10 @@ module ShowRobot
 			parse[:episode]
 		end
 
+		def fetch_matches database
+			puts ShowRobot.datasource_for(database).new(self).episodes
+		end
+
 		def name_guess
 			@name_guess ||= parse[:name_guess].gsub(/[^a-zA-Z0-9]/, ' ').gsub(/\s+/, ' ').strip
 		end

@@ -5,6 +5,7 @@ gemspec
 # Example:
 #   gem "activesupport", ">= 2.3.5"
 gem "trollop", "~> 1.16"
+gem "libxml-ruby", ">= 0.8.3"
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.

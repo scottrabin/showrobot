@@ -26,22 +26,23 @@ files.select { |file| ShowRobot::MediaFile.isvideo? file }.each do |file|
 	puts "Processing file #{file}" if ShowRobot.verbose
 	media = ShowRobot::MediaFile.load file
 
-	if media.is_movie?
+	if options[:identify]
+		if media.is_movie?
 
-	else
-		seriesName = if options[:prompt]
-						 # get the user's choice
-					 else
-						 media.series(options[:database]).first
-					 end
+		else
+			seriesName = if options[:prompt]
+							 # get the user's choice
+						 else
+							 media.series(options[:database]).first
+						 end
 
-		puts "Identified as series [ #{seriesName[0]} ]"
+			puts "Identified as series [ #{seriesName[0]} ]"
+		end
 	end
 
 
 	data = Array.new
 
-	data << media.name_guess if options[:identify]
 	data << media.duration   if options[:duration]
 	data << media.season << media.episode if options[:episode]
 

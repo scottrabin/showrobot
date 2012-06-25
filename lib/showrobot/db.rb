@@ -1,6 +1,13 @@
 module ShowRobot
 
 	class Datasource
+		def initialize fileName
+			@mediaFile = fileName
+		end
+
+		def series
+			puts "  Fetching series data for [ #{@mediaFile.name_guess} ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot.verbose
+		end
 	end
 
 	class << self

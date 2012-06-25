@@ -3,10 +3,6 @@ module ShowRobot
 	class TVRage < Datasource
 		DB_NAME = 'TVRage'
 
-		def initialize file
-			@mediaFile = file
-		end
-
 		def match_query
 			"http://services.tvrage.com/feeds/full_search.php?show=#{ShowRobot.url_encode @mediaFile.name_guess}"
 		end

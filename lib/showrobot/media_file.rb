@@ -23,6 +23,14 @@ module ShowRobot
 			MediaFile.isvideo? @fileName
 		end
 
+		def is_movie?
+			parse[:type] == :movie
+		end
+
+		def is_tv?
+			parse[:type] == :tv
+		end
+
 		def season
 			parse[:season]
 		end
@@ -31,8 +39,8 @@ module ShowRobot
 			parse[:episode]
 		end
 
-		def fetch_matches database
-			puts ShowRobot.datasource_for(database).new(self).episode
+		def series database
+			ShowRobot.datasource_for(database).new(self).series
 		end
 
 		def name_guess

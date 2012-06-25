@@ -18,7 +18,8 @@ module ShowRobot
 				:name_guess => fileName[0, fileName.index($&)],
 				:year		=> ShowRobot.file_get_year(fileName),
 				:season		=> $~['season'].to_i,
-				:episode	=> $~['episode'].to_i
+				:episode	=> $~['episode'].to_i,
+				:type		=> :tv
 			}
 		else
 			# probably a movie

@@ -14,5 +14,6 @@ module ShowRobot
 			raise "Invalid datatype to fetch: [ #{type.to_s} ]"
 		end
 	end
+	module_function :fetch
 
 end

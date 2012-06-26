@@ -26,7 +26,8 @@ module ShowRobot
 			super do |xml|
 				xml.find('//Episode').collect do |episode|
 					{
-						:name		=> episode.find('EpisodeName').first.content,
+						:series		=> series[:name],
+						:title		=> episode.find('EpisodeName').first.content,
 						:season		=> episode.find('SeasonNumber').first.content.to_i,
 						:episode	=> episode.find('EpisodeNumber').first.content.to_i,
 						:episode_ct	=> episode.find('Combined_episodenumber').first.content.to_i

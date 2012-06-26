@@ -1,6 +1,8 @@
 module ShowRobot
 
 	class MediaFile
+		attr_reader :fileName
+
 		# class methods
 		def self.load fileName
 			begin

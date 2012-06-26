@@ -6,11 +6,12 @@ $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib') unless $LOAD_PATH.include
 # dependencies for parsing options
 require 'trollop'
 
+SUBCOMMANDS = %w(rename identify)
 # parse options
 options = Trollop::options do
-	# Media identification options
-	opt :identify, "Identify a show from the filename", :default => false, :short => :i
-	opt :database, "Use the specified database for the search", :default => 'tvrage', :short => :d
+	# Media database identification options
+	opt :movie_database, "Use the specified database for movie matching", :default => '', :short => :m
+	opt :tv_database, "Use the specified database for TV show matching", :default => 'tvdb', :short => :t
 
 	# Cache control
 	opt :cache_dir, "Use the specified directory for caching server queries", :default => nil, :type => String, :short => :c
@@ -25,8 +26,9 @@ options = Trollop::options do
 	opt :verbose, "Show detailed information messages", :default => false
 	# prompts user to choose amongst various options instead of deferring to the first
 	opt :prompt, "Prompt for media file matches", :default => false, :short => :p
+
+	stop_on SUBCOMMANDS
 end
-files = ARGV # Trollop modifies this, all that's left is the list of files
 
 # open up the ShowRobot module and define some constants
 module ShowRobot; end
@@ -36,6 +38,8 @@ ShowRobot::VERBOSE = options[:verbose]
 
 # load up ShowRobot
 require 'showrobot'
+# and the cli tools
+Dir[File.dirname(__FILE__) + '/../lib/showrobot/cli/*.rb'].each { |file| require File.expand_path(file) }
 
 # clear the cache if necessary
 if options[:clear_cache]
@@ -43,68 +47,57 @@ if options[:clear_cache]
 	File.delete(*Dir[ShowRobot::CACHE_DIRECTORY + '/*.cache'])
 end
 
-# helper function for prompts
-def select list, prompt, &format
-	range = 0...10
-	begin
-		puts prompt
-		range.each do |i|
-			puts format.call i, list[i]
-		end
-		print " > "
-		input = $stdin.gets.chomp
+# dispatch on the command
+case ARGV.shift
+when 'rename'
+	# mkdir_p and mv
+	require 'fileutils'
 
-		case input
-		when /^[\d]+$/
-			# it's a number, make sure it's in the range
-			selected = list[input.to_i] if input.to_i < list.length
-		when 'n' # next range
-			range = Range.new(range.end, [range.end + 10, list.length].min, true) if range.end < list.length
-		when 'p' # prev range
-			range = Range.new([0, range.first - 10].max, range.first, true) if range.first > 1
-		when 'q'
-			exit
-		end
-	end while selected.nil?
-	selected
-end
-
-files.select { |file| ShowRobot::MediaFile.isvideo? file }.each do |file|
-	puts "Processing file #{file}" if ShowRobot::VERBOSE
-	media = ShowRobot::MediaFile.load file
-
-	if options[:identify]
-		if media.is_movie?
-
-		else
-			database = ShowRobot.create_datasource options[:database]
-			database.mediaFile = media
-
-			database.series = if options[:prompt]
-								  select database.series_list, "Select a series for [ #{file} ]" do |index, item|
-									  sprintf " %3d) %s", index, item[:name]
-								  end
-							  else
-								  database.series_list.first
-							  end
-
-			episode = if options[:prompt]
-						  select database.episode_list, "Select an episode for [ #{file} ]" do |index, item|
-							  sprintf " %3d) [%02d.%02d] %s", index, item[:season], item[:episode], item[:name]
-						  end
-					  else
-						  database.episode_list.first
-					  end
-
-			puts "Identified as: [ #{database.series[:name]} ] >> [#{episode[:season]}x#{episode[:episode]}] [ #{episode[:name]} ]" if ShowRobot::VERBOSE
-		end
+	opts = Trollop::options do
+		opt :movie_format, "Define the output filename for movies", :default => nil, :type => String, :short => :M
+		opt :tv_format, "Define the output filename for TV shows",  :default => nil, :type => String, :short => :T
+		opt :dry_run, "Dry run; don't touch the files", :default => false, :short => :D
+		opt :space_replace, "Replace spaces in the output file name with the specified character", :default => " ", :short => :r
 	end
 
+	# loop through the video files
+	ARGV.select { |file| ShowRobot::MediaFile.isvideo? file }.each do |file|
+		media = ShowRobot::MediaFile.load file
 
-	data = Array.new
+		new_filename = if media.is_movie?
+						   movie = identify media, options[:movie_database], options[:prompt]
+						   #TODO
+					   else
+						   show = identify media, options[:tv_database], options[:prompt]
+						   args = []
+						   sprintf (opts[:tv_format].gsub /\{(?:(%.*),)?(\w+)\}/ do
+							   case $2
+							   when 's'
+								   args << show[:season]
+								   $1 || '%02d'
+							   when 'e'
+								   args << show[:episode]
+								   $1 || '%02d'
+							   when 'n'
+								   args << show[:series]
+								   $1 || '%s'
+							   when 't'
+								   args << show[:title]
+								   $1 || '%s'
+							   when 'ext'
+								   args << (File.extname(file).sub /^\./, '')
+								   $1 || '%s'
+							   else
+								   raise "Unknown format parameter: #{$2}"
+							   end
+						   end), *args
+					   end.gsub /\s/, opts[:space_replace] # replace spaces with the replacement character
 
-	data << media.duration   if options[:duration]
-	data << media.season << media.episode if options[:episode]
-
-	print data.join "\t"
+		FileUtils.mkdir_p File.dirname(new_filename), :noop => opts[:dry_run], :verbose => options[:verbose]
+		FileUtils.mv file, new_filename, :noop => opts[:dry_run], :verbose => options[:verbose]
+	end
+when 'identify'
+	# TODO
+else
+	Trollop::die "unknown subcommand: #{command.inspect}"
 end

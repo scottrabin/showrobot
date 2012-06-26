@@ -1,8 +1,7 @@
 module ShowRobot
 
 	class Datasource
-		def initialize fileName
-			@mediaFile = fileName
+		def initialize
 		end
 
 		# returns a list of series matching the given file
@@ -20,6 +19,8 @@ module ShowRobot
 			@episode_list ||= yield ShowRobot.fetch(self.class::DATA_TYPE, episode_query)
 		end
 
+		attr_accessor :mediaFile
+
 		attr_writer :series
 		def series
 			@series ||= series_list.first
@@ -30,6 +31,10 @@ module ShowRobot
 		DATASOURCES = {}
 		def add_datasource sym, klass
 			DATASOURCES[sym] = klass
+		end
+
+		def create_datasource sym
+			datasource_for(sym).new
 		end
 
 		def datasource_for sym

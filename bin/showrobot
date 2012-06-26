@@ -51,21 +51,21 @@ files.select { |file| ShowRobot::MediaFile.isvideo? file }.each do |file|
 		if media.is_movie?
 
 		else
-			match = media.match(options[:database])
+			database = ShowRobot.create_datasource options[:database]
+			database.mediaFile = media
 
 			series = if options[:prompt]
 						 # get the user's choice
 					 else
-						 match.series_list.first
+						 database.series_list.first
 					 end
 			episode = if options[:prompt]
 						  # get user's choice
 					  else
-						  match.episode_list
+						  database.episode media.season, media.episode
 					  end
 
-			puts "Identified as series [ #{series[:name]} ]"
-			puts episode
+			puts "Identified as: [ #{series[:name]} ] >> [#{episode[:season]}x#{episode[:episode]}] [ #{episode[:name]} ]" if ShowRobot::VERBOSE
 		end
 	end
 

@@ -43,6 +43,32 @@ if options[:clear_cache]
 	File.delete(*Dir[ShowRobot::CACHE_DIRECTORY + '/*.cache'])
 end
 
+# helper function for prompts
+def select list, prompt, &format
+	range = 0...10
+	begin
+		puts prompt
+		range.each do |i|
+			puts format.call i, list[i]
+		end
+		print " > "
+		input = $stdin.gets.chomp
+
+		case input
+		when /^[\d]+$/
+			# it's a number, make sure it's in the range
+			selected = list[input.to_i] if input.to_i < list.length
+		when 'n' # next range
+			range = Range.new(range.end, [range.end + 10, list.length].min, true) if range.end < list.length
+		when 'p' # prev range
+			range = Range.new([0, range.first - 10].max, range.first, true) if range.first > 1
+		when 'q'
+			exit
+		end
+	end while selected.nil?
+	selected
+end
+
 files.select { |file| ShowRobot::MediaFile.isvideo? file }.each do |file|
 	puts "Processing file #{file}" if ShowRobot::VERBOSE
 	media = ShowRobot::MediaFile.load file
@@ -54,18 +80,23 @@ files.select { |file| ShowRobot::MediaFile.isvideo? file }.each do |file|
 			database = ShowRobot.create_datasource options[:database]
 			database.mediaFile = media
 
-			series = if options[:prompt]
-						 # get the user's choice
-					 else
-						 database.series_list.first
-					 end
+			database.series = if options[:prompt]
+								  select database.series_list, "Select a series for [ #{file} ]" do |index, item|
+									  sprintf " %3d) %s", index, item[:name]
+								  end
+							  else
+								  database.series_list.first
+							  end
+
 			episode = if options[:prompt]
-						  # get user's choice
+						  select database.episode_list, "Select an episode for [ #{file} ]" do |index, item|
+							  sprintf " %3d) [%02d.%02d] %s", index, item[:season], item[:episode], item[:name]
+						  end
 					  else
-						  database.episode media.season, media.episode
+						  database.episode_list.first
 					  end
 
-			puts "Identified as: [ #{series[:name]} ] >> [#{episode[:season]}x#{episode[:episode]}] [ #{episode[:name]} ]" if ShowRobot::VERBOSE
+			puts "Identified as: [ #{database.series[:name]} ] >> [#{episode[:season]}x#{episode[:episode]}] [ #{episode[:name]} ]" if ShowRobot::VERBOSE
 		end
 	end
 

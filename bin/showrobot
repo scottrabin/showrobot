@@ -10,17 +10,17 @@ SUBCOMMANDS = %w(rename identify)
 # parse options
 options = Trollop::options do
 	# Media database identification options
-	opt :movie_database, "Use the specified database for movie matching", :default => '', :short => :m
-	opt :tv_database, "Use the specified database for TV show matching", :default => 'tvdb', :short => :t
+	opt :movie_database, "Use the specified database for movie matching", :type => String, :short => :m
+	opt :tv_database, "Use the specified database for TV show matching", :type => String, :short => :t
+
+	# File type control
+	opt :force_movie, "Force the specified file(s) to be matched against the movie database", :default => false, :short => :M
+	opt :force_tv, "Force the specified file(s) to be matched against the tv database", :default => false, :short => :T
 
 	# Cache control
-	opt :cache_dir, "Use the specified directory for caching server queries", :default => nil, :type => String, :short => :c
+	opt :cache_dir, "Use the specified directory for caching server queries", :type => String, :short => :c
 	opt :no_cache, "Do not use caching for any queries", :default => false, :short => nil
 	opt :clear_cache, "Clear the cache and start fresh with queries", :short => :C
-
-	# Media file parsing options
-	opt :duration, "Determine the length of a video file", :default => false, :short => :l
-	opt :episode, "Determine the season and episode of a file from the filename", :default => false
 
 	# Causes ShowRobot to display additional debugging information
 	opt :verbose, "Show detailed information messages", :default => false
@@ -30,32 +30,35 @@ options = Trollop::options do
 	stop_on SUBCOMMANDS
 end
 
-# open up the ShowRobot module and define some constants
-module ShowRobot; end
-ShowRobot::USE_CACHE = false if options[:no_cache]
-ShowRobot::CACHE_DIRECTORY = options[:cache_dir] if options[:cache_dir]
-ShowRobot::VERBOSE = options[:verbose]
-
 # load up ShowRobot
 require 'showrobot'
+
+# configure it
+ShowRobot.configure :cache_dir      => options[:cache_dir]      if not options[:cache_dir].nil?
+ShowRobot.configure :use_cache      => false                    if options[:no_cache]
+ShowRobot.configure :verbose        => true                     if options[:verbose]
+ShowRobot.configure :tv_database    => options[:tv_database]    if not options[:tv_database].nil?
+ShowRobot.configure :movie_database => options[:movie_database] if not options[:movie_database].nil?
+
 # and the cli tools
 Dir[File.dirname(__FILE__) + '/../lib/showrobot/cli/*.rb'].each { |file| require File.expand_path(file) }
 
 # clear the cache if necessary
 if options[:clear_cache]
-	puts "Clearing cache in [ #{ShowRobot::CACHE_DIRECTORY} ]" if ShowRobot::VERBOSE
-	File.delete(*Dir[ShowRobot::CACHE_DIRECTORY + '/*.cache'])
+	puts "Clearing cache in [ #{ShowRobot.config[:cache_dir]} ]" if ShowRobot.config[:verbose]
+	File.delete(*Dir[ShowRobot.config[:cache_dir] + '/*.cache'])
 end
 
 # dispatch on the command
-case ARGV.shift
+command = ARGV.shift
+case command
 when 'rename'
 	# mkdir_p and mv
 	require 'fileutils'
 
 	opts = Trollop::options do
-		opt :movie_format, "Define the output filename for movies", :default => nil, :type => String, :short => :M
-		opt :tv_format, "Define the output filename for TV shows",  :default => nil, :type => String, :short => :T
+		opt :movie_format, "Define the output filename for movies", :type => String, :short => :M
+		opt :tv_format, "Define the output filename for TV shows", :type => String, :short => :T
 		opt :dry_run, "Dry run; don't touch the files", :default => false, :short => :D
 		opt :space_replace, "Replace spaces in the output file name with the specified character", :default => " ", :short => :r
 	end
@@ -65,10 +68,10 @@ when 'rename'
 		media = ShowRobot::MediaFile.load file
 
 		new_filename = if media.is_movie?
-						   movie = identify media, options[:movie_database], options[:prompt]
+						   movie = identify media, ShowRobot.config[:movie_database], options[:prompt]
 						   #TODO
 					   else
-						   show = identify media, options[:tv_database], options[:prompt]
+						   show = identify media, ShowRobot.config[:tv_database], options[:prompt]
 						   args = []
 						   sprintf (opts[:tv_format].gsub /\{(?:(%.*),)?(\w+)\}/ do
 							   case $2
@@ -93,8 +96,8 @@ when 'rename'
 						   end), *args
 					   end.gsub /\s/, opts[:space_replace] # replace spaces with the replacement character
 
-		FileUtils.mkdir_p File.dirname(new_filename), :noop => opts[:dry_run], :verbose => options[:verbose]
-		FileUtils.mv file, new_filename, :noop => opts[:dry_run], :verbose => options[:verbose]
+		FileUtils.mkdir_p File.dirname(new_filename), :noop => opts[:dry_run], :verbose => ShowRobot.config[:verbose]
+		FileUtils.mv file, new_filename, :noop => opts[:dry_run], :verbose => ShowRobot.config[:verbose]
 	end
 when 'identify'
 	# TODO

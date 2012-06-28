@@ -6,13 +6,13 @@ module ShowRobot
 
 		# returns a list of series matching the given file
 		def series_list
-			puts "Fetching series data for [ #{@mediaFile.name_guess} ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot::VERBOSE and @series_list.nil?
+			puts "Fetching series data for [ #{@mediaFile.name_guess} ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot.config[:verbose] and @series_list.nil?
 
 			@series_list ||= yield ShowRobot.fetch(self.class::DATA_TYPE, match_query)
 		end
 
 		def episode_list
-			puts "Fetching episode data for [ #{series[:name]} ] from #{self.class::DB_NAME} (#{episode_query})" if ShowRobot::VERBOSE and @episode_list.nil?
+			puts "Fetching episode data for [ #{series[:name]} ] from #{self.class::DB_NAME} (#{episode_query})" if ShowRobot.config[:verbose] and @episode_list.nil?
 
 			@episode_list ||= yield ShowRobot.fetch(self.class::DATA_TYPE, episode_query)
 		end

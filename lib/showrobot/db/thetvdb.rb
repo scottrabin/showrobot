@@ -3,7 +3,6 @@ module ShowRobot
 	class TheTVDB < Datasource
 		DB_NAME		= "The TVDB"
 		DATA_TYPE	= :xml
-		API_KEY		= 'BA864DEE427E384A' # TODO
 
 		def match_query
 			"http://www.thetvdb.com/api/GetSeries.php?seriesname=#{ShowRobot.url_encode @mediaFile.name_guess}&language=en"
@@ -11,7 +10,7 @@ module ShowRobot
 
 		def episode_query
 			lang = 'en' # TODO
-			"http://www.thetvdb.com/api/#{API_KEY}/series/#{series[:source].find('seriesid').first.content}/all/#{lang}.xml"
+			"http://www.thetvdb.com/api/#{ShowRobot.config[:tvdb_api_key]}/series/#{series[:source].find('seriesid').first.content}/all/#{lang}.xml"
 		end
 
 		# Returns a list of series related to the media file

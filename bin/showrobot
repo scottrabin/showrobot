@@ -103,8 +103,18 @@ when 'rename'
 						   end), *args
 					   end.gsub /\s/, opts[:space_replace] # replace spaces with the replacement character
 
+		new_filename = File.expand_path new_filename
+
+		# ensure the target directory exists
 		FileUtils.mkdir_p File.dirname(new_filename), :noop => opts[:dry_run], :verbose => ShowRobot.config[:verbose]
-		FileUtils.mv file, new_filename, :noop => opts[:dry_run], :verbose => ShowRobot.config[:verbose]
+
+		# if the file already exists, log an error
+		if File.exists? new_filename
+			ShowRobot.log :error, "mv failed (destination exists): [ #{file} ] --> [ #{new_filename} ]" if not opts[:dry_run]
+		else
+			ShowRobot.log :info, "mv [ #{file} ] --> [ #{new_filename} ]" if not opts[:dry_run]
+			FileUtils.mv file, new_filename, :noop => opts[:dry_run], :verbose => ShowRobot.config[:verbose]
+		end
 	end
 when 'config'
 	# going to need YAML

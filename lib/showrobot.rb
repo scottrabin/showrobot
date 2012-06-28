@@ -1,3 +1,4 @@
+require 'showrobot/log'
 require 'showrobot/config'
 require 'showrobot/media_file'
 require 'showrobot/db'

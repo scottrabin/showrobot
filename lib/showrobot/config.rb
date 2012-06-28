@@ -11,7 +11,9 @@ module ShowRobot
 		# whether or not to use the cache store for data fetching
 		:use_cache => true,
 		# where the cache directory is located
-		:cache_dir => ENV['HOME'] + '/.showrobot/cache' 
+		:cache_dir => ENV['HOME'] + '/.showrobot/cache',
+		# default configuration file
+		:config_file => ENV['HOME'] + '/.showrobot/config.yml'
 	}
 	def self.config
 		@config
@@ -19,12 +21,10 @@ module ShowRobot
 
 	# Configure via hash
 	def self.configure(opts = {})
-		opts.each do |k, v|
-			@config[k.to_sym] = v
-		end
+		opts.each { |k, v| @config[k.to_sym] = v } if not opts.nil?
 	end
 
-	def self.load_config(file = @config[:basepath] + '/config.yml')
+	def self.load_config(file = @config[:config_file])
 		begin
 			config = YAML::load(IO.read(file))
 		rescue Errno::ENOENT
@@ -38,5 +38,7 @@ module ShowRobot
 
 	# load the default configuration file
 	load_config(File.dirname(__FILE__) + '/../../config.yml')
+	# and the environment configuration file
+	load_config
 
 end

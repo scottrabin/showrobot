@@ -6,9 +6,12 @@ $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib') unless $LOAD_PATH.include
 # dependencies for parsing options
 require 'trollop'
 
-SUBCOMMANDS = %w(rename identify)
+SUBCOMMANDS = %w(rename identify config)
 # parse options
 options = Trollop::options do
+	# Use the specified configuration file
+	opt :config_file, "Use the specified configuration file for ShowRobot", :type => String, :short => :f
+
 	# Media database identification options
 	opt :movie_database, "Use the specified database for movie matching", :type => String, :short => :m
 	opt :tv_database, "Use the specified database for TV show matching", :type => String, :short => :t
@@ -34,6 +37,10 @@ end
 require 'showrobot'
 
 # configure it
+if not options[:config_file].nil?
+	ShowRobot.configure :config_file => options[:config_file]
+	ShowRobot.load_config
+end
 ShowRobot.configure :cache_dir      => options[:cache_dir]      if not options[:cache_dir].nil?
 ShowRobot.configure :use_cache      => false                    if options[:no_cache]
 ShowRobot.configure :verbose        => true                     if options[:verbose]
@@ -99,6 +106,35 @@ when 'rename'
 		FileUtils.mkdir_p File.dirname(new_filename), :noop => opts[:dry_run], :verbose => ShowRobot.config[:verbose]
 		FileUtils.mv file, new_filename, :noop => opts[:dry_run], :verbose => ShowRobot.config[:verbose]
 	end
+when 'config'
+	# going to need YAML
+	require 'yaml'
+
+	opts = Trollop::options do
+		opt :global, "Modify the global options for ShowRobot", :default => false, :short => :g
+	end
+
+	file = opts[:global] ? File.dirname(__FILE__) + '/../config.yml' : ShowRobot.config[:config_file]
+
+	begin
+		conf = YAML::load(IO.read(file))
+	rescue Errno::ENOENT
+		conf = {}
+	end
+
+	# extend the loaded configuration
+	while not ARGV.empty?
+		prop, val = ARGV.shift 2
+		conf[prop] = val
+
+		printf "Setting [ %-12s ] to [ %-12s ]\n", prop, val if ShowRobot.config[:verbose]
+	end
+
+	# write to the file
+	File.open(file, 'w') do |file|
+		file.write conf.to_yaml
+	end
+
 when 'identify'
 	# TODO
 else

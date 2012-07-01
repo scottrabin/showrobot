@@ -2,7 +2,7 @@
 
 ShowRobot is a command line utility for identifying, categorizing, and organizing media files. It analyzes the filename and attempts to match against popular online databases of movies and TV shows, and will optionally rename the files it matches.
 
-== Installing::
+== Installing
 
 Via Rubygem:
     $ gem install showrobot
@@ -15,10 +15,12 @@ The hard way:
 
 ShowRobot is invoked via `showrobot [_subcommand_]`, which are explained in further detail below. All options take the flag `-v`, which turns on verbose output.
 
-    showrobot config [-f | -g] [_property_ _value_] ...
+    showrobot config [-f | -g] [property value] ...
 
 This will modify the default configuration file used by ShowRobot. Normally, the file is located at `$HOME/.showrobot/config.yml`, but an explicit filename may be specified with `-f`. Alternatively, you can modify the global configuration file used by ShowRobot with `-g`, but this setting will be lost when ShowRobot is updated.
+
 *-f _filename_*: specify the configuration file to create or update
+
 *-g*: modify the global configuration file used by ShowRobot. *WARNING*: Any changes made here will be overwritten when updating ShowRobot.
 
 ---
@@ -26,26 +28,46 @@ This will modify the default configuration file used by ShowRobot. Normally, the
     showrobot rename [-Dfpr] [-Cc|--no-cache] [--movie-database _db_] [--tv-database _db] [-M|-T] -mt _<files>_
 
 Rename files according to the formats specified by `-m` (for movies) and `-t` (for tv shows).
+
 *`-D`*: the rename operation will be a "dry run" and will not create new directories or actually move any files, but will simply print to `stdout` what operations would be taken in the absence of `-D`.
+
 *`-f _filename_`*: use the specified file for configuration option overrides
+
 *`-p`*: prompt for interactive choosing of movie identity (for movies) or TV show series name/season/episode (for TV shows) before attempting to rename the file, then rename the file using those choices.
+
 *`-r _char_`*: replace spaces in the output filename with the specified `_char_`.
+
 ===== Cache control:
+
 *`-C`*: Clear the cache of all entries before matching againt the databases.
+
 *`-c _dirname_`*: use the specified `_dirname_` to store cache entries
+
 *`--no-cache`*: do not use the cache for doing database lookups
+
 ===== Database control:
+
 *`--movie-database _database_`*: use the specified `_database_` for matching movies. (options: _none_ (TBA))
+
 *`--tv-database _database_`*: use the specified `_database_` for matching tv shows. (options: **tvdb**)
+
 ===== File control:
+
 *`-M`*: Force all _<files>_ to be matched as movies, regardless of interpretation or file cues.
+
 *`-T`*: Force all _<files>_ to be matched as TV shows, regardless of interpretation or file cues.
+
 ===== File rename formatting:
 Both movies and TV shows are renamed according to a similar scheme. TV shows will have the following patterns replaced:
+
 `{s}` --> Two digit season number
+
 `{e}` --> Two digit episode number within a given season
+
 `{n}` --> The name of the series the file belongs to
+
 `{t}` --> The title of the specific episode
+
 `{ext}` --> The file extension (e.g. avi, mp4)
 
     showrobot identify

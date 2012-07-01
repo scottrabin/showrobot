@@ -43,9 +43,22 @@ module ShowRobot
 			if @movie_list.nil?
 				puts "Fetching list of movies matching [ #{@mediaFile.name_guess} (#{@mediaFile.year}) ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot.config[:verbose]
 
-				@movie_list = (yield ShowRobot.fetch(self.class::DATA_TYPE, match_query)).sort &by_distance(@mediaFile.name_guess, :title)
+				# get the base movie list from the block
+				@movie_list = yield ShowRobot.fetch(self.class::DATA_TYPE, match_query)
 			end
-			@movie_list
+
+			# TODO - reprocessing the list each time is expensive, but maintaining a filtered list prevents redefining @mediaFile properties
+			list = @movie_list.dup
+
+			list.select! { |movie| movie[:year] == @mediaFile.year } if not @mediaFile.year.nil?
+			list.sort do |a, b|
+				distance = distance_differential(a[:title], b[:title], @mediaFile.name_guess)
+				if distance == 0
+					(a[:runtime] - @mediaFile.runtime).to_i.abs - (b[:runtime] - @mediaFile.runtime).to_i.abs
+				else
+					distance
+				end
+			end
 		end
 	end
 

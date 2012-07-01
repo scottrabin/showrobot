@@ -2,15 +2,27 @@
 - :title: First Movie
   :year: 2000
   :runtime: 60
+- :title: First Movie, Part 2
+  :year: 2000
+  :runtime: 65
 - :title: Second Movie
   :year: 2001
   :runtime: 70
+- :title: Second Movie, Part 3
+  :year: 2001
+  :runtime: 75
 - :title: Third Movie
   :year: 2002
   :runtime: 80
+- :title: Third Movie, Part II
+  :year: 2002
+  :runtime: 75
 - :title: Fourth Movie
   :year: 2003
   :runtime: 90
+- :title: ! 'Fourth Movie: The Subtitle'
+  :year: 2003
+  :runtime: 92
 - :title: Fifth Movie
   :year: 2004
   :runtime: 100

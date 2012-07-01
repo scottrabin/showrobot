@@ -19,10 +19,19 @@ module ShowRobot
 		@config
 	end
 
-	# Configure via hash
-	def self.configure(opts = {})
-		opts.each { |k, v| @config[k.to_sym] = v } if not opts.nil?
+	def self.configure *args
+		if args.length == 2
+			@config[args[0].to_sym] = args[1]
+		elsif args[0].instance_of? Hash
+			args[0].each { |k, v| @config[k.to_sym] = v }
+		else
+			raise "Invalid arguments to ShowRobot.configure: #{args}"
+		end
 	end
+	# Configure via hash
+	#def self.configure(opts = {})
+	#	opts.each { |k, v| @config[k.to_sym] = v } if not opts.nil?
+	#end
 
 	def self.load_config(file = @config[:config_file])
 		begin

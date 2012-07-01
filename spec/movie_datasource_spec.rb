@@ -46,7 +46,7 @@ describe ShowRobot, 'movie datasource API' do
 		describe 'when there is runtime data but no year data' do
 			it 'should order the movie list by word distance to title them by closest runtime' do
 				@file.runtime = 65
-				@db.movie_list.should have(14).items
+				@db.movie_list.should have(12).items
 				last_distance, last_runtime_diff = 0, 0
 				@db.movie_list.each do |movie|
 					distance = Text::Levenshtein.distance(movie[:title], @file.name_guess)

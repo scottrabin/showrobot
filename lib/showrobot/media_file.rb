@@ -41,6 +41,19 @@ module ShowRobot
 			parse[:episode]
 		end
 
+		# Get/set the year of the file
+		def year
+			@year ||= parse[:year]
+		end
+		attr_writer :year
+
+		# Get/set the runtime/duration of the file
+		# Note : MediaFile subclasses should redefine this function to determine the runtime from the file
+		def runtime
+			@runtime ||= 0
+		end
+		attr_writer :runtime
+
 		def name_guess
 			@name_guess ||= parse[:name_guess].gsub(/[^a-zA-Z0-9]/, ' ').gsub(/\s+/, ' ').strip
 		end

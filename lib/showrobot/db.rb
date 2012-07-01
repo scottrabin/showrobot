@@ -1,4 +1,5 @@
 module ShowRobot
+	require 'text'
 
 	# generic datasources (movies and tv shows)
 	class Datasource
@@ -39,9 +40,12 @@ module ShowRobot
 	# Movie datasources
 	class MovieDatasource < Datasource
 		def movie_list
-			puts "Fetching list of movies matching [ #{@mediaFile.name_guess} (#{@mediaFile.year}) ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot.config[:verbose] and @movie_list.nil?
+			if @movie_list.nil?
+				puts "Fetching list of movies matching [ #{@mediaFile.name_guess} (#{@mediaFile.year}) ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot.config[:verbose]
 
-			@movie_list ||= yield ShowRobot.fetch(self.class::DATA_TYPE, match_query)
+				@movie_list = (yield ShowRobot.fetch(self.class::DATA_TYPE, match_query)).sort &by_distance(@mediaFile.name_guess, :title)
+			end
+			@movie_list
 		end
 	end
 

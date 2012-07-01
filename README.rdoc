@@ -29,46 +29,46 @@ This will modify the default configuration file used by ShowRobot. Normally, the
 
 Rename files according to the formats specified by `-m` (for movies) and `-t` (for tv shows).
 
-*`-D`*: the rename operation will be a "dry run" and will not create new directories or actually move any files, but will simply print to `stdout` what operations would be taken in the absence of `-D`.
+*-D*: the rename operation will be a "dry run" and will not create new directories or actually move any files, but will simply print to `stdout` what operations would be taken in the absence of `-D`.
 
-*`-f _filename_`*: use the specified file for configuration option overrides
+*-f _filename_*: use the specified file for configuration option overrides
 
-*`-p`*: prompt for interactive choosing of movie identity (for movies) or TV show series name/season/episode (for TV shows) before attempting to rename the file, then rename the file using those choices.
+*-p*: prompt for interactive choosing of movie identity (for movies) or TV show series name/season/episode (for TV shows) before attempting to rename the file, then rename the file using those choices.
 
-*`-r _char_`*: replace spaces in the output filename with the specified `_char_`.
+*-r _char_*: replace spaces in the output filename with the specified `char`.
 
 ===== Cache control:
 
-*`-C`*: Clear the cache of all entries before matching againt the databases.
+*-C*: Clear the cache of all entries before matching againt the databases.
 
-*`-c _dirname_`*: use the specified `_dirname_` to store cache entries
+*-c _dirname_*: use the specified `dirname` to store cache entries
 
-*`--no-cache`*: do not use the cache for doing database lookups
+*--no-cache*: do not use the cache for doing database lookups
 
 ===== Database control:
 
-*`--movie-database _database_`*: use the specified `_database_` for matching movies. (options: _none_ (TBA))
+*--movie-database _database_*: use the specified `database` for matching movies. (options: _none_ (TBA))
 
-*`--tv-database _database_`*: use the specified `_database_` for matching tv shows. (options: **tvdb**)
+*--tv-database _database_*: use the specified `database` for matching tv shows. (options: *tvdb*)
 
 ===== File control:
 
-*`-M`*: Force all _<files>_ to be matched as movies, regardless of interpretation or file cues.
+*-M*: Force all _<files>_ to be matched as movies, regardless of interpretation or file cues.
 
-*`-T`*: Force all _<files>_ to be matched as TV shows, regardless of interpretation or file cues.
+*-T*: Force all _<files>_ to be matched as TV shows, regardless of interpretation or file cues.
 
 ===== File rename formatting:
 Both movies and TV shows are renamed according to a similar scheme. TV shows will have the following patterns replaced:
 
-`{s}` --> Two digit season number
+*{s}* --> Two digit season number
 
-`{e}` --> Two digit episode number within a given season
+*{e}* --> Two digit episode number within a given season
 
-`{n}` --> The name of the series the file belongs to
+*{n}* --> The name of the series the file belongs to
 
-`{t}` --> The title of the specific episode
+*{t}* --> The title of the specific episode
 
-`{ext}` --> The file extension (e.g. avi, mp4)
+*{ext}* --> The file extension (e.g. avi, mp4)
 
     showrobot identify
 

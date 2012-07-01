@@ -1,7 +1,7 @@
 module ShowRobot
 	require 'text'
 
-	class MockTV < Datasource
+	class MockTV < TVDatasource
 
 		DB_NAME     = 'Mock Database'
 		DATA_TYPE   = :yml

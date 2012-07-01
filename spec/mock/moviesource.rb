@@ -1,7 +1,7 @@
 module ShowRobot
 	require 'text'
 
-	class MockMovie < Datasource
+	class MockMovie < MovieDatasource
 
 		DB_NAME     = 'Mock Movie Database'
 		DATA_TYPE   = :yml
@@ -10,8 +10,10 @@ module ShowRobot
 			File.expand_path './spec/mock/moviedatabase.yml'
 		end
 
-		def match_list
-
+		def movie_list
+			super do |obj|
+				obj
+			end
 		end
 	end
 

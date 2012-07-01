@@ -11,11 +11,11 @@ describe ShowRobot, 'movie datasource API' do
 
 	describe 'when querying for a list of matches' do
 		it 'should return a list of movies' do
-			@db.match_list.should have(8).items
-			@db.match_list.each do |movie|
+			@db.movie_list.should have(8).items
+			@db.movie_list.each do |movie|
 				movie[:name].should be_an_instance_of(String)
-				movie[:year].should be_an_instance_of(Integer)
-				movie[:runtime].should be_an_instance_of(Integer)
+				movie[:year].should be_a_kind_of(Integer)
+				movie[:runtime].should be_a_kind_of(Integer)
 			end
 		end
 	end

@@ -1,6 +1,6 @@
 module ShowRobot
 
-	class TheTVDB < Datasource
+	class TheTVDB < TVDatasource
 		DB_NAME		= "The TVDB"
 		DATA_TYPE	= :xml
 

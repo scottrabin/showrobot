@@ -35,11 +35,6 @@ module ShowRobot
 			end
 		end
 
-		# Returns the episode data for the specified episode
-		def episode seasonnum, episodenum
-			episode_list.find { |ep| ep[:season] == seasonnum and ep[:episode] == episodenum }
-		end
-
 	end
 
 	add_datasource :tvdb, TheTVDB

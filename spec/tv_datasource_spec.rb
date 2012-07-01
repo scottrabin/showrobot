@@ -28,4 +28,17 @@ describe ShowRobot, 'datasource API' do
 			end
 		end
 	end
+
+	describe 'when querying for a specific episode' do
+		it 'should return the corresponding episode' do
+			mockdb.episode(1, 1)[:title].should eq('The Fourth Episode')
+			mockdb.episode(2, 3)[:title].should eq('The Ninth Episode')
+			mockdb.episode(4, 2)[:title].should eq('The Fourteenth Episode')
+		end
+
+		it 'should automatically return the episode for the associated media file' do
+			mockdb.episode[:title].should eq('The Seventh Episode')
+		end
+	end
+
 end

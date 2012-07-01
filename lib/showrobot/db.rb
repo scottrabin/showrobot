@@ -23,6 +23,11 @@ module ShowRobot
 		def series
 			@series ||= series_list.first
 		end
+
+		# Returns the episode data for the specified episode
+		def episode(seasonnum = @mediaFile.season, episodenum = @mediaFile.episode)
+			episode_list.find { |ep| ep[:season] == seasonnum and ep[:episode] == episodenum }
+		end
 	end
 
 	class << self

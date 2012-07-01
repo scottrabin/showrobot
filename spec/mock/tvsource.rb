@@ -16,22 +16,8 @@ module ShowRobot
 
 		def series_list
 			super do |obj|
-				list = []
-				obj.each do |item|
-					if list.index { |i| i[:name] == item[:series] }.nil?
-						list << Hash[{ :name => item[:series], :source => item }]
-					end
-				end
-				list.sort do |a, b|
-					distance = Text::Levenshtein.distance(a[:name], @mediaFile.name_guess) - Text::Levenshtein.distance(b[:name], @mediaFile.name_guess)
-					case
-					when distance < 0
-						-1
-					when distance > 0
-						1
-					else
-						0
-					end
+				obj.map { |item| { :name => item[:series], :source => item }}.uniq { |item| item[:name] }.sort do |a, b|
+					Text::Levenshtein.distance(a[:name], @mediaFile.name_guess) - Text::Levenshtein.distance(b[:name], @mediaFile.name_guess)
 				end
 			end
 		end
@@ -39,9 +25,7 @@ module ShowRobot
 		def episode_list
 			super do |obj|
 				# take out the non-matching series
-				obj.select do |item|
-					item[:series] == series[:name]
-				end.collect do |episode|
+				obj.select { |item| item[:series] == series[:name] }.collect do |episode|
 					{
 						:series => episode[:series],
 						:title => episode[:title],

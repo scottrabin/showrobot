@@ -26,15 +26,7 @@ module ShowRobot
 		def episode_list
 			super do |obj|
 				# take out the non-matching series
-				obj.select { |item| item[:series] == series[:name] }.collect do |episode|
-					{
-						:series => episode[:series],
-						:title => episode[:title],
-						:season => episode[:season],
-						:episode => episode[:episode],
-						:episode_ct => episode[:combined_ep]
-					}
-				end
+				obj.select { |item| item[:series] == series[:name] }
 			end
 		end
 

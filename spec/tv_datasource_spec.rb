@@ -27,7 +27,7 @@ describe ShowRobot, 'datasource API' do
 				episode[:title].should be_an_instance_of(String)
 				episode[:season].should be_a_kind_of(Integer)
 				episode[:episode].should be_a_kind_of(Integer)
-				episode[:episode_ct].should be_a_kind_of(Integer)
+				episode[:combined_ep].should be_a_kind_of(Integer)
 			end
 		end
 	end

@@ -13,62 +13,62 @@ The hard way:
 
 == Usage
 
-ShowRobot is invoked via `showrobot [_subcommand_]`, which are explained in further detail below. All options take the flag `-v`, which turns on verbose output.
+ShowRobot is invoked via <tt>showrobot [<em>subcommand</em>]</tt>, which are explained in further detail below. All options take the flag <tt>-v</tt>, which turns on verbose output.
 
     showrobot config [-f | -g] [property value] ...
 
-This will modify the default configuration file used by ShowRobot. Normally, the file is located at `$HOME/.showrobot/config.yml`, but an explicit filename may be specified with `-f`. Alternatively, you can modify the global configuration file used by ShowRobot with `-g`, but this setting will be lost when ShowRobot is updated.
+This will modify the default configuration file used by ShowRobot. Normally, the file is located at <tt>$HOME/.showrobot/config.yml</tt>, but an explicit filename may be specified with <tt>-f</tt>. Alternatively, you can modify the global configuration file used by ShowRobot with <tt>-g</tt>, but this setting will be lost when ShowRobot is updated.
 
-*-f _filename_*: specify the configuration file to create or update
+<b><tt>-f <em>filename</em></tt></b>: specify the configuration file to create or update
 
-*-g*: modify the global configuration file used by ShowRobot. *WARNING*: Any changes made here will be overwritten when updating ShowRobot.
+<b><tt>-g</tt></b>: modify the global configuration file used by ShowRobot. *WARNING*: Any changes made here will be overwritten when updating ShowRobot.
 
 ---
 
-    showrobot rename [-Dfpr] [-Cc|--no-cache] [--movie-database _db_] [--tv-database _db] [-M|-T] -mt _<files>_
+    showrobot rename [-Dfpr] [-Cc|--no-cache] [--movie-database <em>db</em>] [--tv-database <em>db</em>] [-M|-T] -mt <em><files></em>
 
-Rename files according to the formats specified by `-m` (for movies) and `-t` (for tv shows).
+Rename files according to the formats specified by <tt>-m</tt> (for movies) and <tt>-t</tt> (for tv shows).
 
-*-D*: the rename operation will be a "dry run" and will not create new directories or actually move any files, but will simply print to `stdout` what operations would be taken in the absence of `-D`.
+<b><tt>-D</tt></b>: the rename operation will be a "dry run" and will not create new directories or actually move any files, but will simply print to <tt>stdout</tt> what operations would be taken in the absence of <tt>-D</tt>.
 
-*-f _filename_*: use the specified file for configuration option overrides
+<b><tt>-f <em>filename</em></tt></b>: use the specified file for configuration option overrides
 
-*-p*: prompt for interactive choosing of movie identity (for movies) or TV show series name/season/episode (for TV shows) before attempting to rename the file, then rename the file using those choices.
+<b><tt>-p</tt></b>: prompt for interactive choosing of movie identity (for movies) or TV show series name/season/episode (for TV shows) before attempting to rename the file, then rename the file using those choices.
 
-*-r _char_*: replace spaces in the output filename with the specified `char`.
+<b><tt>-r <em>char</em></tt></b>: replace spaces in the output filename with the specified <tt>char</tt>.
 
 ===== Cache control:
 
-*-C*: Clear the cache of all entries before matching againt the databases.
+<b><tt>-C</tt></b>: Clear the cache of all entries before matching againt the databases.
 
-*-c _dirname_*: use the specified `dirname` to store cache entries
+<b><tt>-c <em>dirname</em></tt></b>: use the specified <tt>dirname</tt> to store cache entries
 
-*--no-cache*: do not use the cache for doing database lookups
+<b><tt>--no-cache</tt></b>: do not use the cache for doing database lookups
 
 ===== Database control:
 
-*--movie-database _database_*: use the specified `database` for matching movies. (options: _none_ (TBA))
+<b><tt>--movie-database <em>database</em></tt></b>: use the specified <em><tt>database</tt></em> for matching movies. (options: <em>none</em> (TBA))
 
-*--tv-database _database_*: use the specified `database` for matching tv shows. (options: *tvdb*)
+<b><tt>--tv-database <em>database</em></tt></b>: use the specified <em><tt>database</tt></em> for matching tv shows. (options: <b>tvdb</b>)
 
 ===== File control:
 
-*-M*: Force all _<files>_ to be matched as movies, regardless of interpretation or file cues.
+<b><tt>-M</tt></b>: Force all <em><tt><files></tt></em> to be matched as movies, regardless of interpretation or file cues.
 
-*-T*: Force all _<files>_ to be matched as TV shows, regardless of interpretation or file cues.
+<b><tt>-T</tt></b>: Force all <em><tt><files></tt></em> to be matched as TV shows, regardless of interpretation or file cues.
 
 ===== File rename formatting:
 Both movies and TV shows are renamed according to a similar scheme. TV shows will have the following patterns replaced:
 
-*{s}* --> Two digit season number
+<b><tt>{s}</tt></b> --> Two digit season number
 
-*{e}* --> Two digit episode number within a given season
+<b><tt>{e}</tt></b> --> Two digit episode number within a given season
 
-*{n}* --> The name of the series the file belongs to
+<b><tt>{n}</tt></b> --> The name of the series the file belongs to
 
-*{t}* --> The title of the specific episode
+<b><tt>{t}</tt></b> --> The title of the specific episode
 
-*{ext}* --> The file extension (e.g. avi, mp4)
+<b><tt>{ext}</tt></b> --> The file extension (e.g. avi, mp4)
 
     showrobot identify
 

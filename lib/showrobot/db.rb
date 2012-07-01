@@ -19,9 +19,11 @@ module ShowRobot
 
 		attr_accessor :mediaFile
 
-		attr_writer :series
 		def series
 			@series ||= series_list.first
+		end
+		def series= val
+			@series = series_list.find { |obj| obj[:name] == val }
 		end
 
 		# Returns the episode data for the specified episode

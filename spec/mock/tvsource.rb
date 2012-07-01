@@ -1,4 +1,5 @@
 module ShowRobot
+	require 'text'
 
 	class MockTV < Datasource
 
@@ -21,7 +22,17 @@ module ShowRobot
 						list << Hash[{ :name => item[:series], :source => item }]
 					end
 				end
-				list
+				list.sort do |a, b|
+					distance = Text::Levenshtein.distance(a[:name], @mediaFile.name_guess) - Text::Levenshtein.distance(b[:name], @mediaFile.name_guess)
+					case
+					when distance < 0
+						-1
+					when distance > 0
+						1
+					else
+						0
+					end
+				end
 			end
 		end
 
@@ -29,7 +40,7 @@ module ShowRobot
 			super do |obj|
 				# take out the non-matching series
 				obj.select do |item|
-					item[:series] == @mediaFile.name_guess
+					item[:series] == series[:name]
 				end.collect do |episode|
 					{
 						:series => episode[:series],

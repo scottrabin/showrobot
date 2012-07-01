@@ -10,14 +10,14 @@ module ShowRobot
 		end
 
 		def episode_query
-			File.expand_path './mockepisode.yml'
+			File.expand_path './spec/mock/tvdatabase.yml'
 		end
 
 		def series_list
 			super do |obj|
 				list = []
 				obj.each do |item|
-					if list.index { |i| i[:name] == item[:name] }.nil?
+					if list.index { |i| i[:name] == item[:series] }.nil?
 						list << Hash[{ :name => item[:series], :source => item }]
 					end
 				end
@@ -28,7 +28,7 @@ module ShowRobot
 		def episode_list
 			super do |obj|
 				# take out the non-matching series
-				obj.filter do |item|
+				obj.select do |item|
 					item[:series] == @mediaFile.name_guess
 				end.collect do |episode|
 					{

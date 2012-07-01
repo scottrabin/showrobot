@@ -1,5 +1,4 @@
 module ShowRobot
-	require 'text'
 
 	# generic datasources (movies and tv shows)
 	class Datasource

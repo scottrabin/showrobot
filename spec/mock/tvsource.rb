@@ -1,5 +1,4 @@
 module ShowRobot
-	require 'text'
 
 	class MockTV < TVDatasource
 
@@ -16,9 +15,11 @@ module ShowRobot
 
 		def series_list
 			super do |obj|
-				obj.map { |item| { :name => item[:series], :source => item }}.uniq { |item| item[:name] }.sort do |a, b|
-					Text::Levenshtein.distance(a[:name], @mediaFile.name_guess) - Text::Levenshtein.distance(b[:name], @mediaFile.name_guess)
-				end
+				obj.map do |item|
+					{ :name => item[:series], :source => item }
+				end.uniq do |item|
+					item[:name]
+				end.sort &by_distance(@mediaFile.name_guess, :name)
 			end
 		end
 

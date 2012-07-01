@@ -1,6 +1,5 @@
 require 'helper'
 require 'mock/moviesource'
-require 'text'
 
 describe ShowRobot, 'movie datasource API' do
 
@@ -26,7 +25,7 @@ describe ShowRobot, 'movie datasource API' do
 			it 'should order them by word distance to title' do
 				last_distance = 0
 				@db.movie_list.each do |movie|
-					distance = Text::Levenshtein.distance(movie[:title], @file.name_guess)
+					distance = word_distance movie[:title], @file.name_guess
 					last_distance.should <= distance
 					last_distance = distance
 				end
@@ -49,7 +48,7 @@ describe ShowRobot, 'movie datasource API' do
 				@db.movie_list.should have(12).items
 				last_distance, last_runtime_diff = 0, 0
 				@db.movie_list.each do |movie|
-					distance = Text::Levenshtein.distance(movie[:title], @file.name_guess)
+					distance = word_distance movie[:title], @file.name_guess
 					last_distance.should <= distance
 					if last_distance == distance
 						last_runtime_diff.should <= (movie[:runtime] - @file.runtime)
@@ -73,7 +72,7 @@ describe ShowRobot, 'movie datasource API' do
 					# verify filtering, part 2
 					movie[:year].should eq(2003)
 					# verify distance
-					distance = Text::Levenshtein.distance(movie[:title], @file.name_guess)
+					distance = word_distance movie[:title], @file.name_guess
 					last_distance.should <= distance
 					if last_distance == distance
 						last_runtime_diff.should <= (movie[:runtime] - @file.runtime)

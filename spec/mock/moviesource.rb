@@ -1,5 +1,4 @@
 module ShowRobot
-	require 'text'
 
 	class MockMovie < MovieDatasource
 

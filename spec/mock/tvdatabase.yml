@@ -1,0 +1,151 @@
+---
+- :series: SeriesName
+  :title: The First Episode
+  :season: 0
+  :episode: 1
+  :combined_ep: 1
+- :series: SeriesName
+  :title: The Second Episode
+  :season: 0
+  :episode: 2
+  :combined_ep: 2
+- :series: SeriesName
+  :title: The Third Episode
+  :season: 0
+  :episode: 3
+  :combined_ep: 3
+- :series: SeriesName
+  :title: The Fourth Episode
+  :season: 1
+  :episode: 1
+  :combined_ep: 4
+- :series: SeriesName
+  :title: The Fifth Episode
+  :season: 1
+  :episode: 2
+  :combined_ep: 5
+- :series: SeriesName
+  :title: The Sixth Episode
+  :season: 1
+  :episode: 3
+  :combined_ep: 6
+- :series: SeriesName
+  :title: The Seventh Episode
+  :season: 2
+  :episode: 1
+  :combined_ep: 7
+- :series: SeriesName
+  :title: The Eighth Episode
+  :season: 2
+  :episode: 2
+  :combined_ep: 8
+- :series: SeriesName
+  :title: The Ninth Episode
+  :season: 2
+  :episode: 3
+  :combined_ep: 9
+- :series: SeriesName
+  :title: The Tenth Episode
+  :season: 3
+  :episode: 1
+  :combined_ep: 10
+- :series: SeriesName
+  :title: The Eleventh Episode
+  :season: 3
+  :episode: 2
+  :combined_ep: 11
+- :series: SeriesName
+  :title: The Twelfth Episode
+  :season: 3
+  :episode: 3
+  :combined_ep: 12
+- :series: SeriesName
+  :title: The Thirteenth Episode
+  :season: 4
+  :episode: 1
+  :combined_ep: 13
+- :series: SeriesName
+  :title: The Fourteenth Episode
+  :season: 4
+  :episode: 2
+  :combined_ep: 14
+- :series: SeriesName
+  :title: The Fifteenth Episode
+  :season: 4
+  :episode: 3
+  :combined_ep: 15
+- :series: Another Series
+  :title: First Episode
+  :season: 0
+  :episode: 1
+  :combined_ep: 1
+- :series: Another Series
+  :title: Second Episode
+  :season: 0
+  :episode: 2
+  :combined_ep: 2
+- :series: Another Series
+  :title: Third Episode
+  :season: 0
+  :episode: 3
+  :combined_ep: 3
+- :series: Another Series
+  :title: Fourth Episode
+  :season: 1
+  :episode: 1
+  :combined_ep: 4
+- :series: Another Series
+  :title: Fifth Episode
+  :season: 1
+  :episode: 2
+  :combined_ep: 5
+- :series: Another Series
+  :title: Sixth Episode
+  :season: 1
+  :episode: 3
+  :combined_ep: 6
+- :series: Another Series
+  :title: Seventh Episode
+  :season: 2
+  :episode: 1
+  :combined_ep: 7
+- :series: Another Series
+  :title: Eighth Episode
+  :season: 2
+  :episode: 2
+  :combined_ep: 8
+- :series: Another Series
+  :title: Ninth Episode
+  :season: 2
+  :episode: 3
+  :combined_ep: 9
+- :series: Another Series
+  :title: Tenth Episode
+  :season: 3
+  :episode: 1
+  :combined_ep: 10
+- :series: Another Series
+  :title: Eleventh Episode
+  :season: 3
+  :episode: 2
+  :combined_ep: 11
+- :series: Another Series
+  :title: Twelfth Episode
+  :season: 3
+  :episode: 3
+  :combined_ep: 12
+- :series: Another Series
+  :title: Thirteenth Episode
+  :season: 4
+  :episode: 1
+  :combined_ep: 13
+- :series: Another Series
+  :title: Fourteenth Episode
+  :season: 4
+  :episode: 2
+  :combined_ep: 14
+- :series: Another Series
+  :title: Fifteenth Episode
+  :season: 4
+  :episode: 3
+  :combined_ep: 15

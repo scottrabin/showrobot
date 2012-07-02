@@ -52,7 +52,7 @@ module ShowRobot
 			list.select! { |movie| movie[:year] == @mediaFile.year } if not @mediaFile.year.nil?
 			list.sort do |a, b|
 				distance = distance_differential(a[:title], b[:title], @mediaFile.name_guess)
-				if distance == 0
+				if distance == 0 and not a[:runtime].nil? and not b[:runtime].nil?
 					(a[:runtime] - @mediaFile.runtime).to_i.abs - (b[:runtime] - @mediaFile.runtime).to_i.abs
 				else
 					distance

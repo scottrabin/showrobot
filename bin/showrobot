@@ -79,10 +79,17 @@ when :rename
 	# loop through the video files
 	ARGV.select { |file| ShowRobot::MediaFile.isvideo? file }.each do |file|
 		media = ShowRobot::MediaFile.load file
+		media.type = :movie if options[:force_movie]
+		media.type = :tv    if options[:force_tv]
 
-		if options[:force_movie] or (media.is_movie? and not options[:force_tv])
-			# TODO
-		else options[:force_tv] or (media.is_tv? and not options[:force_movie])
+		if media.is_movie?
+			identity = identify media, ShowRobot.config[:movie_database], options[:prompt]
+			filename_format = translate options[:movie_format], {
+				'{t}' => '%<title>s',
+				'{y}' => '%<year>04d',
+				'{ext}' => File.extname(file).sub(/^\./, '')
+			}
+		else
 			identity = identify media, ShowRobot.config[:tv_database], options[:prompt]
 			filename_format = translate options[:tv_format], {
 				'{s}' => '%<season>02d',

@@ -26,11 +26,11 @@ module ShowRobot
 		end
 
 		def is_movie?
-			parse[:type] == :movie
+			type == :movie
 		end
 
 		def is_tv?
-			parse[:type] == :tv
+			type == :tv
 		end
 
 		def season
@@ -39,6 +39,18 @@ module ShowRobot
 
 		def episode
 			parse[:episode]
+		end
+
+		# Get/set the type of the file
+		def type
+			@type ||= parse[:type]
+		end
+		def type= val
+			if [:movie, :tv].include? val.to_sym
+				@type = val.to_sym
+			else
+				raise "Invalid file type: #{val}, expected 'movie' or 'tv'"
+			end
 		end
 
 		# Get/set the year of the file

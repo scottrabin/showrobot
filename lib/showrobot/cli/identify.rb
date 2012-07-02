@@ -1,11 +1,12 @@
 # helper function for identifying a file
 def identify media, database, prompt
-	if media.is_movie?
-
-	else
-		db = ShowRobot.create_datasource database
-		db.mediaFile = media
+	db = ShowRobot.create_datasource database
+	db.mediaFile = media
 		
+	if media.is_movie?
+		# TODO - prompt
+		db.movie_list.first
+	else
 		db.series = if prompt
 						select db.series_list, "Select a series for [ #{media.fileName} ]" do |i, item|
 							sprintf " %3d) %s", i, item[:name]

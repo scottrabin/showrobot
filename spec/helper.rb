@@ -11,17 +11,30 @@ end
 require 'showrobot'
 
 module ShowRobotHelper
-	def with_file fileName, &block
-		describe "with file #{fileName}" do
-			subject do
-				ShowRobot::MediaFile.load fileName
-			end
+	CMD_RENAME_TO = /--> \[ (.*?) \]/
 
-			instance_eval &block
+	module Extend
+		def with_file fileName, &block
+			describe "with file #{fileName}" do
+				subject do
+					ShowRobot::MediaFile.load fileName
+				end
+
+				instance_eval &block
+			end
+		end
+	end
+
+	module Include
+		def cli cmd
+			r = `#{File.expand_path(File.dirname(__FILE__) + '/../bin/showrobot')} #{cmd}`
+			$?.should == 0
+			r
 		end
 	end
 end
 
 RSpec.configure do |c|
-	c.extend ShowRobotHelper
+	c.extend ShowRobotHelper::Extend
+	c.include ShowRobotHelper::Include
 end

@@ -30,19 +30,16 @@ describe ShowRobot, 'command line executable' do
 
 		describe '--movie-database' do
 			it 'should use the specified database for movies' do
-				output = `#{CLI} rename -Dv --movie-database mockmovie "#{MOVIE_NAME}"`
+				output = cli %(rename -Dv --movie-database mockmovie "#{MOVIE_NAME}")
 				# make sure the output contains a line like "from Some DB"
 				output.should include("from #{ShowRobot::MockMovie::DB_NAME}")
-				$?.should eq(0)
 			end
 		end
 
 		describe '--tv-database' do
 			it 'should use the specified database for tv shows' do
-				output = `#{CLI} rename -Dv --tv-database mocktv "#{TV_SHOW_NAME}"`
-
+				output = cli %(rename -Dv --tv-database mocktv "#{TV_SHOW_NAME}")
 				output.should include("from #{ShowRobot::MockTV::DB_NAME}")
-				$?.should eq(0)
 			end
 		end
 
@@ -53,32 +50,40 @@ describe ShowRobot, 'command line executable' do
 		describe '--force-movie' do
 			it 'should use the movie database even though it looks like a TV show' do
 				# make sure the TV episode actually gets parsed as a TV episode automatically
-				verify = `#{CLI} rename -Dv --tv-database mocktv "#{TV_SHOW_NAME}"`
+				verify = cli %(rename -Dv --tv-database mocktv "#{TV_SHOW_NAME}")
 				verify.should include("from #{ShowRobot::MockTV::DB_NAME}")
-				$?.should eq(0)
 
 				# now make sure it gets forced to the mock movie db with --force-movie
-				movie = `#{CLI} rename -Dv --movie-database mockmovie --force-movie "#{TV_SHOW_NAME}"`
+				movie = cli %(rename -Dv --movie-database mockmovie --force-movie "#{TV_SHOW_NAME}")
 				movie.should include("from #{ShowRobot::MockMovie::DB_NAME}")
-				$?.should eq(0)
 			end
 		end
 
 		describe '--force-tv' do
 			it 'should use the tv database even though it looks like a movie' do
 				# make sure the movie actually gets parsed as a movie automatically
-				verify = `#{CLI} rename -Dv --movie-database mockmovie "#{MOVIE_NAME}"`
+				verify = cli %(rename -Dv --movie-database mockmovie "#{MOVIE_NAME}")
 				verify.should include("from #{ShowRobot::MockMovie::DB_NAME}")
-				$?.should eq(0)
 
 				# now make sure it gets forced to the mock movie db with --force-movie
-				movie = `#{CLI} rename -Dv --tv-database mocktv --force-tv "#{MOVIE_NAME}"`
+				movie = cli %(rename -Dv --tv-database mocktv --force-tv "#{MOVIE_NAME}")
 				movie.should include("from #{ShowRobot::MockTV::DB_NAME}")
-				$?.should eq(0)
 			end
 		end
 
 		describe '--movie-format' do
+			it 'should format the output parameters correctly' do
+				# for movies, {t} => title, {y} => year, {ext} => extension
+				title = cli %(rename -Dv --movie-database mockmovie -m "{t}" "#{MOVIE_NAME}")
+				File.basename(title[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq('First Movie')
+
+				title = cli %(rename -Dv --movie-database mockmovie -m "{y}" "#{MOVIE_NAME}")
+				File.basename(title[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq('2000')
+
+				title = cli %(rename -Dv --movie-database mockmovie -m "{ext}" "#{MOVIE_NAME}")
+				File.basename(title[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq('avi')
+
+			end
 		end
 
 		describe '--tv-format' do

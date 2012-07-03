@@ -2,7 +2,7 @@ module ShowRobot
 
 	class MockTV < TVDatasource
 
-		DB_NAME     = 'Mock Database'
+		DB_NAME     = 'Mock TV Database'
 		DATA_TYPE   = :yml
 
 		def match_query

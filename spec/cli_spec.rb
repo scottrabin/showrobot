@@ -5,6 +5,7 @@ describe ShowRobot, 'command line executable' do
 
 	# TODO - configuration editing tests
 	
+	CLI = File.expand_path(File.dirname(__FILE__) + '/../bin/showrobot')
 	MOVIE_NAME = 'A_Movie (2013).avi'
 	TV_SHOW_NAME = 'ShowSeries.S01E02.TheTitle.avi'
 
@@ -18,7 +19,7 @@ describe ShowRobot, 'command line executable' do
 		describe '--dry-run' do
 			it 'should not actually move the file' do
 				%x(touch /tmp/showrobot_test.avi)
-				%x(#{File.dirname(__FILE__)}/../bin/showrobot rename -Dm "/tmp/showrobot_test_2.avi" /tmp/showrobot_test.avi)
+				%x(#{CLI} rename -Dm "/tmp/showrobot_test_2.avi" /tmp/showrobot_test.avi)
 
 				File.exists?('/tmp/showrobot_test.avi').should be(true)
 				File.exists?('/tmp/showrobot_test_2.avi').should be(false)
@@ -28,13 +29,18 @@ describe ShowRobot, 'command line executable' do
 
 		describe '--movie-database' do
 			it 'should use the specified database for movies' do
-				output = `./bin/showrobot rename -Dv --movie-database mockmovie -m "nil" "#{MOVIE_NAME}"`
+				output = `#{CLI} rename -Dv --movie-database mockmovie -m "nil" "#{MOVIE_NAME}"`
 				# make sure the output contains a line like "from Some DB"
 				output.should include('from Mock Movie Database')
 			end
 		end
 
 		describe '--tv-database' do
+			it 'should use the specified database for tv shows' do
+				output = `#{CLI} rename -Dv --tv-database mocktv -t "nil" "#{TV_SHOW_NAME}"`
+
+				output.should include('from Mock TV Database')
+			end
 		end
 
 		describe '--prompt' do

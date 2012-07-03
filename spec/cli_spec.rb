@@ -44,9 +44,19 @@ describe ShowRobot, 'command line executable' do
 		end
 
 		describe '--prompt' do
+			# TODO - not sure how to test interactive prompts
 		end
 
 		describe '--force-movie' do
+			it 'should use the movie database even though it looks like a TV show' do
+				# make sure the TV episode actually gets parsed as a TV episode automatically
+				verify = `#{CLI} rename -Dv --tv-database mocktv -t "nil" "#{TV_SHOW_NAME}"`
+				verify.should include("from #{ShowRobot::MockTV::DB_NAME}")
+
+				# now make sure it gets forced to the mock movie db with --force-movie
+				movie = `#{CLI} rename -Dv --movie-database mockmovie -m "nil" --force-movie "#{TV_SHOW_NAME}"`
+				movie.should include("from #{ShowRobot::MockMovie::DB_NAME}")
+			end
 		end
 
 		describe '--force-tv' do

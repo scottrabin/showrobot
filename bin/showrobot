@@ -68,8 +68,8 @@ when :rename
 		instance_eval &OptionSet[:file]
 
 		# Rename-specific options
-		opt :movie_format, "Define the output filename for movies", :type => String, :short => :m
-		opt :tv_format, "Define the output filename for TV shows", :type => String, :short => :t
+		opt :movie_format, "Define the output filename for movies", :default => '{t} ({y}).{ext}', :short => :m
+		opt :tv_format, "Define the output filename for TV shows", :default => '{n}.S{s}E{e}.{t}.{ext}', :short => :t
 		opt :dry_run, "Dry run; don't touch the files", :default => false, :short => :D
 		opt :space_replace, "Replace spaces in the output file name with the specified character", :default => " ", :short => :r
 	end

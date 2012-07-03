@@ -24,6 +24,7 @@ describe ShowRobot, 'command line executable' do
 				File.exists?('/tmp/showrobot_test.avi').should be(true)
 				File.exists?('/tmp/showrobot_test_2.avi').should be(false)
 				File.delete('/tmp/showrobot_test.avi')
+				$?.should eq(0)
 			end
 		end
 
@@ -32,6 +33,7 @@ describe ShowRobot, 'command line executable' do
 				output = `#{CLI} rename -Dv --movie-database mockmovie "#{MOVIE_NAME}"`
 				# make sure the output contains a line like "from Some DB"
 				output.should include("from #{ShowRobot::MockMovie::DB_NAME}")
+				$?.should eq(0)
 			end
 		end
 
@@ -40,6 +42,7 @@ describe ShowRobot, 'command line executable' do
 				output = `#{CLI} rename -Dv --tv-database mocktv "#{TV_SHOW_NAME}"`
 
 				output.should include("from #{ShowRobot::MockTV::DB_NAME}")
+				$?.should eq(0)
 			end
 		end
 
@@ -52,14 +55,27 @@ describe ShowRobot, 'command line executable' do
 				# make sure the TV episode actually gets parsed as a TV episode automatically
 				verify = `#{CLI} rename -Dv --tv-database mocktv "#{TV_SHOW_NAME}"`
 				verify.should include("from #{ShowRobot::MockTV::DB_NAME}")
+				$?.should eq(0)
 
 				# now make sure it gets forced to the mock movie db with --force-movie
 				movie = `#{CLI} rename -Dv --movie-database mockmovie --force-movie "#{TV_SHOW_NAME}"`
 				movie.should include("from #{ShowRobot::MockMovie::DB_NAME}")
+				$?.should eq(0)
 			end
 		end
 
 		describe '--force-tv' do
+			it 'should use the tv database even though it looks like a movie' do
+				# make sure the movie actually gets parsed as a movie automatically
+				verify = `#{CLI} rename -Dv --movie-database mockmovie "#{MOVIE_NAME}"`
+				verify.should include("from #{ShowRobot::MockMovie::DB_NAME}")
+				$?.should eq(0)
+
+				# now make sure it gets forced to the mock movie db with --force-movie
+				movie = `#{CLI} rename -Dv --tv-database mocktv --force-tv "#{MOVIE_NAME}"`
+				movie.should include("from #{ShowRobot::MockTV::DB_NAME}")
+				$?.should eq(0)
+			end
 		end
 
 		describe '--movie-format' do

@@ -6,7 +6,7 @@ module ShowRobot
 		# season01episode02
 		/season\s*(?<season>\d{1,4})\sepisode\s*(?<episode>\d{1,4})/i,
 		# sxe
-		/\D(?<season>\d{1,4})x(?<episode>\d{1,4})\D/
+		/(?:\D|^)(?<season>\d{1,4})x(?<episode>\d{1,4})(?:\D|$)/
 	]
 
 	YEAR_PATTERN = /[\[\(]?(\d{4})[\]\)]?/

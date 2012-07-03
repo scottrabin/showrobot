@@ -51,8 +51,9 @@ describe ShowRobot, 'movie datasource API' do
 					distance = word_distance movie[:title], @file.name_guess
 					last_distance.should <= distance
 					if last_distance == distance
-						last_runtime_diff.should <= (movie[:runtime] - @file.runtime)
-						last_runtime_diff = movie[:runtime] - @file.runtime
+						runtime_diff = (movie[:runtime] - @file.runtime).abs
+						last_runtime_diff.should <= runtime_diff
+						last_runtime_diff = runtime_diff
 					else
 						last_runtime_diff = 0
 					end

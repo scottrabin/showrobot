@@ -82,6 +82,11 @@ when :rename
 		media.type = :movie if options[:force_movie]
 		media.type = :tv    if options[:force_tv]
 
+		# TODO - for testing, is there a better way to require these?
+		if ShowRobot.config[:movie_database].include? 'mock' or ShowRobot.config[:tv_database].include? 'mock'
+			Dir[File.dirname(__FILE__) + '/../spec/mock/*.rb'].each { |file| require File.expand_path file }
+		end
+
 		if media.is_movie?
 			identity = identify media, ShowRobot.config[:movie_database], options[:prompt]
 			filename_format = translate options[:movie_format], {
@@ -105,14 +110,15 @@ when :rename
 		puts "Would have performed the following operations:" if options[:dry_run]
 
 		# ensure the target directory exists
-		FileUtils.mkdir_p File.dirname(new_filename), :noop => options[:dry_run], :verbose => options[:dry_run]
+		puts "mkdir -p \"#{File.dirname(new_filename)}\"" if ShowRobot.config[:verbose]
+		FileUtils.mkdir_p File.dirname(new_filename), :noop => options[:dry_run], :verbose => false
 
 		# if the file already exists, log an error
 		if File.exists? new_filename
-			ShowRobot.log :error, "mv failed (destination exists): [ #{file} ] --> [ #{new_filename} ]" if not options[:dry_run]
+			ShowRobot.log :error, "mv failed (destination exists): [ #{file} ] --> [ #{new_filename} ]", :no_write => options[:dry_run]
 		else
-			ShowRobot.log :info, "mv [ #{file} ] --> [ #{new_filename} ]" if not options[:dry_run]
-			FileUtils.mv file, new_filename, :noop => options[:dry_run], :verbose => options[:dry_run] # verbosity here is covered by the logging statement
+			ShowRobot.log :info, "mv [ #{file} ] --> [ #{new_filename} ]", :no_write => options[:dry_run]
+			FileUtils.mv file, new_filename, :noop => options[:dry_run], :verbose => false # verbosity here is covered by the logging statement
 		end
 	end
 when :identify

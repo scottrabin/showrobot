@@ -8,6 +8,15 @@ describe ShowRobot, 'command line executable' do
 	CLI = File.expand_path(File.dirname(__FILE__) + '/../bin/showrobot')
 	MOVIE_NAME = 'First Movie (2000).avi'
 	TV_SHOW_NAME = 'ShowSeries.S01E02.TheTitle.avi'
+	TV_SHOW = {
+		:filename   => 'ShowSeries.S01E02.TheTitle.avi',
+		:seriesname => 'ShowSeries',
+		:season     => '01',
+		:episode    => '02',
+		:title      => 'TheTitle',
+		:extension  => 'avi'
+	}
+
 
 	describe 'when running: showrobot rename' do
 		# TODO --config-file, -f
@@ -87,6 +96,24 @@ describe ShowRobot, 'command line executable' do
 		end
 
 		describe '--tv-format' do
+			it 'should format the output parameters correctly' do
+				# for tv shows, {n} => series name, {s} => season, {e} => episode,
+				#               {t} => episode title, {ext} => file extension
+				seriesname = cli %(rename -Dv --tv-database mocktv -t "{n}" "#{TV_SHOW_NAME}")
+				File.basename(seriesname[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq(TV_SHOW[:seriesname])
+
+				title = cli %(rename -Dv --tv-database mocktv -t "{t}" "#{TV_SHOW_NAME}")
+				File.basename(title[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq(TV_SHOW[:title])
+
+				season = cli %(rename -Dv --tv-database mocktv -t "{s}" "#{TV_SHOW_NAME}")
+				File.basename(season[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq(TV_SHOW[:season])
+
+				episode = cli %(rename -Dv --tv-database mocktv -t "{e}" "#{TV_SHOW_NAME}")
+				File.basename(episode[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq(TV_SHOW[:episode])
+
+				extension = cli %(rename -Dv --tv-database mocktv -t "{ext}" "#{TV_SHOW_NAME}")
+				File.basename(extension[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq(TV_SHOW[:extension])
+			end
 		end
 
 		describe '--space-replace' do

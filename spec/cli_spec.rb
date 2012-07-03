@@ -6,7 +6,7 @@ describe ShowRobot, 'command line executable' do
 	# TODO - configuration editing tests
 	
 	CLI = File.expand_path(File.dirname(__FILE__) + '/../bin/showrobot')
-	MOVIE_NAME = 'A_Movie (2013).avi'
+	MOVIE_NAME = 'First Movie (2000).avi'
 	TV_SHOW_NAME = 'ShowSeries.S01E02.TheTitle.avi'
 
 	describe 'when running: showrobot rename' do
@@ -18,8 +18,8 @@ describe ShowRobot, 'command line executable' do
 
 		describe '--dry-run' do
 			it 'should not actually move the file' do
-				%x(touch /tmp/showrobot_test.avi)
-				%x(#{CLI} rename -Dm "/tmp/showrobot_test_2.avi" /tmp/showrobot_test.avi)
+				`touch /tmp/showrobot_test.avi`
+				`#{CLI} rename -Dm "/tmp/showrobot_test_2.avi" /tmp/showrobot_test.avi`
 
 				File.exists?('/tmp/showrobot_test.avi').should be(true)
 				File.exists?('/tmp/showrobot_test_2.avi').should be(false)
@@ -29,17 +29,17 @@ describe ShowRobot, 'command line executable' do
 
 		describe '--movie-database' do
 			it 'should use the specified database for movies' do
-				output = `#{CLI} rename -Dv --movie-database mockmovie -m "nil" "#{MOVIE_NAME}"`
+				output = `#{CLI} rename -Dv --movie-database mockmovie "#{MOVIE_NAME}"`
 				# make sure the output contains a line like "from Some DB"
-				output.should include('from Mock Movie Database')
+				output.should include("from #{ShowRobot::MockMovie::DB_NAME}")
 			end
 		end
 
 		describe '--tv-database' do
 			it 'should use the specified database for tv shows' do
-				output = `#{CLI} rename -Dv --tv-database mocktv -t "nil" "#{TV_SHOW_NAME}"`
+				output = `#{CLI} rename -Dv --tv-database mocktv "#{TV_SHOW_NAME}"`
 
-				output.should include('from Mock TV Database')
+				output.should include("from #{ShowRobot::MockTV::DB_NAME}")
 			end
 		end
 
@@ -50,11 +50,11 @@ describe ShowRobot, 'command line executable' do
 		describe '--force-movie' do
 			it 'should use the movie database even though it looks like a TV show' do
 				# make sure the TV episode actually gets parsed as a TV episode automatically
-				verify = `#{CLI} rename -Dv --tv-database mocktv -t "nil" "#{TV_SHOW_NAME}"`
+				verify = `#{CLI} rename -Dv --tv-database mocktv "#{TV_SHOW_NAME}"`
 				verify.should include("from #{ShowRobot::MockTV::DB_NAME}")
 
 				# now make sure it gets forced to the mock movie db with --force-movie
-				movie = `#{CLI} rename -Dv --movie-database mockmovie -m "nil" --force-movie "#{TV_SHOW_NAME}"`
+				movie = `#{CLI} rename -Dv --movie-database mockmovie --force-movie "#{TV_SHOW_NAME}"`
 				movie.should include("from #{ShowRobot::MockMovie::DB_NAME}")
 			end
 		end

@@ -14,7 +14,7 @@ describe ShowRobot, 'command line executable' do
 		:extension  => 'avi'
 	}
 	TV_SHOW = {
-		:filename   => 'AnotherSeries.S01E02.TheTitle.avi',
+		:filename   => 'AnotherSeries.S01E02.Fifth.Episode.avi',
 		:seriesname => 'Another Series',
 		:season     => '01',
 		:episode    => '02',

@@ -1,13 +1,18 @@
 # test the bin/showrobot command line executable
 require 'helper'
+require 'fileutils'
 
 describe ShowRobot, 'command line executable' do
 
 	# TODO - configuration editing tests
 	
-	CLI = File.expand_path(File.dirname(__FILE__) + '/../bin/showrobot')
-	MOVIE_NAME = 'First Movie (2000).avi'
-	TV_SHOW_NAME = 'ShowSeries.S01E02.TheTitle.avi'
+	MOVIE = {
+		:filename   => 'Fourth Movie: The Subtitle.(2003).avi',
+		:title      => 'Fourth Movie: The Subtitle',
+		:runtime    => 92,
+		:year       => '2003',
+		:extension  => 'avi'
+	}
 	TV_SHOW = {
 		:filename   => 'AnotherSeries.S01E02.TheTitle.avi',
 		:seriesname => 'Another Series',
@@ -26,20 +31,36 @@ describe ShowRobot, 'command line executable' do
 		# TODO --clear-cache, -C
 
 		describe '--dry-run' do
-			it 'should not actually move the file' do
-				`touch /tmp/showrobot_test.avi`
-				`#{CLI} rename -Dm "/tmp/showrobot_test_2.avi" /tmp/showrobot_test.avi`
+			before :each do
+				@startfile = temp_file 'showrobot_test.avi'
+				@outfile   = temp_file 'failure.avi'
+				File.delete @startfile if File.exists?(@startfile)
+				File.delete @outfile   if File.exists?(@outfile)
+				FileUtils.mkdir_p File.dirname(@startfile)
+				FileUtils.touch @startfile
+			end
+			
+			after :each do
+				File.delete @startfile if File.exists?(@startfile)
+				File.delete @outfile   if File.exists?(@outfile)
+			end
 
-				File.exists?('/tmp/showrobot_test.avi').should be(true)
-				File.exists?('/tmp/showrobot_test_2.avi').should be(false)
-				File.delete('/tmp/showrobot_test.avi')
-				$?.should eq(0)
+			it 'should not actually move the file' do
+				move = cli %(rename -Dm "#{@outfile}" "#{@startfile}")
+				File.exists?(@startfile).should == true
+				File.exists?(@outfile).should == false
+			end
+
+			it 'should move the file without the option' do
+				move = cli %(rename -m "#{@outfile}" "#{@startfile}")
+				File.exists?(@startfile).should == false
+				File.exists?(@outfile).should == true
 			end
 		end
 
 		describe '--movie-database' do
 			it 'should use the specified database for movies' do
-				output = cli %(rename -Dv --movie-database mockmovie "#{MOVIE_NAME}")
+				output = cli %(rename -Dv --movie-database mockmovie "#{MOVIE[:filename]}")
 				# make sure the output contains a line like "from Some DB"
 				output.should include("from #{ShowRobot::MockMovie::DB_NAME}")
 			end
@@ -47,7 +68,7 @@ describe ShowRobot, 'command line executable' do
 
 		describe '--tv-database' do
 			it 'should use the specified database for tv shows' do
-				output = cli %(rename -Dv --tv-database mocktv "#{TV_SHOW_NAME}")
+				output = cli %(rename -Dv --tv-database mocktv "#{TV_SHOW[:filename]}")
 				output.should include("from #{ShowRobot::MockTV::DB_NAME}")
 			end
 		end
@@ -59,11 +80,11 @@ describe ShowRobot, 'command line executable' do
 		describe '--force-movie' do
 			it 'should use the movie database even though it looks like a TV show' do
 				# make sure the TV episode actually gets parsed as a TV episode automatically
-				verify = cli %(rename -Dv --tv-database mocktv "#{TV_SHOW_NAME}")
+				verify = cli %(rename -Dv --tv-database mocktv "#{TV_SHOW[:filename]}")
 				verify.should include("from #{ShowRobot::MockTV::DB_NAME}")
 
 				# now make sure it gets forced to the mock movie db with --force-movie
-				movie = cli %(rename -Dv --movie-database mockmovie --force-movie "#{TV_SHOW_NAME}")
+				movie = cli %(rename -Dv --movie-database mockmovie --force-movie "#{TV_SHOW[:filename]}")
 				movie.should include("from #{ShowRobot::MockMovie::DB_NAME}")
 			end
 		end
@@ -71,11 +92,11 @@ describe ShowRobot, 'command line executable' do
 		describe '--force-tv' do
 			it 'should use the tv database even though it looks like a movie' do
 				# make sure the movie actually gets parsed as a movie automatically
-				verify = cli %(rename -Dv --movie-database mockmovie "#{MOVIE_NAME}")
+				verify = cli %(rename -Dv --movie-database mockmovie "#{MOVIE[:filename]}")
 				verify.should include("from #{ShowRobot::MockMovie::DB_NAME}")
 
 				# now make sure it gets forced to the mock movie db with --force-movie
-				movie = cli %(rename -Dv --tv-database mocktv --force-tv "#{MOVIE_NAME}")
+				movie = cli %(rename -Dv --tv-database mocktv --force-tv "#{MOVIE[:filename]}")
 				movie.should include("from #{ShowRobot::MockTV::DB_NAME}")
 			end
 		end
@@ -83,15 +104,14 @@ describe ShowRobot, 'command line executable' do
 		describe '--movie-format' do
 			it 'should format the output parameters correctly' do
 				# for movies, {t} => title, {y} => year, {ext} => extension
-				title = cli %(rename -Dv --movie-database mockmovie -m "{t}" "#{MOVIE_NAME}")
-				File.basename(title[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq('First Movie')
+				title = cli %(rename -Dv --movie-database mockmovie -m "{t}" "#{MOVIE[:filename]}")
+				File.basename(out_file title).should == MOVIE[:title]
 
-				title = cli %(rename -Dv --movie-database mockmovie -m "{y}" "#{MOVIE_NAME}")
-				File.basename(title[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq('2000')
+				year = cli %(rename -Dv --movie-database mockmovie -m "{y}" "#{MOVIE[:filename]}")
+				File.basename(out_file year).should == MOVIE[:year]
 
-				title = cli %(rename -Dv --movie-database mockmovie -m "{ext}" "#{MOVIE_NAME}")
-				File.basename(title[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq('avi')
-
+				extension = cli %(rename -Dv --movie-database mockmovie -m "{ext}" "#{MOVIE[:filename]}")
+				File.basename(out_file extension).should == MOVIE[:extension]
 			end
 		end
 
@@ -99,27 +119,27 @@ describe ShowRobot, 'command line executable' do
 			it 'should format the output parameters correctly' do
 				# for tv shows, {n} => series name, {s} => season, {e} => episode,
 				#               {t} => episode title, {ext} => file extension
-				seriesname = cli %(rename -Dv --tv-database mocktv -t "{n}" "#{TV_SHOW_NAME}")
-				File.basename(seriesname[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq(TV_SHOW[:seriesname])
+				seriesname = cli %(rename -Dv --tv-database mocktv -t "{n}" "#{TV_SHOW[:filename]}")
+				File.basename(out_file seriesname).should == TV_SHOW[:seriesname]
 
-				title = cli %(rename -Dv --tv-database mocktv -t "{t}" "#{TV_SHOW_NAME}")
-				File.basename(title[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq(TV_SHOW[:title])
+				title = cli %(rename -Dv --tv-database mocktv -t "{t}" "#{TV_SHOW[:filename]}")
+				File.basename(out_file title).should == TV_SHOW[:title]
 
-				season = cli %(rename -Dv --tv-database mocktv -t "{s}" "#{TV_SHOW_NAME}")
-				File.basename(season[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq(TV_SHOW[:season])
+				season = cli %(rename -Dv --tv-database mocktv -t "{s}" "#{TV_SHOW[:filename]}")
+				File.basename(out_file season).should == TV_SHOW[:season]
 
-				episode = cli %(rename -Dv --tv-database mocktv -t "{e}" "#{TV_SHOW_NAME}")
-				File.basename(episode[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq(TV_SHOW[:episode])
+				episode = cli %(rename -Dv --tv-database mocktv -t "{e}" "#{TV_SHOW[:filename]}")
+				File.basename(out_file episode).should == TV_SHOW[:episode]
 
-				extension = cli %(rename -Dv --tv-database mocktv -t "{ext}" "#{TV_SHOW_NAME}")
-				File.basename(extension[ShowRobotHelper::CMD_RENAME_TO, 1]).should eq(TV_SHOW[:extension])
+				extension = cli %(rename -Dv --tv-database mocktv -t "{ext}" "#{TV_SHOW[:filename]}")
+				File.basename(out_file extension).should == TV_SHOW[:extension]
 			end
 		end
 
 		describe '--space-replace' do
 			it 'should format the output with all spaces in the filename replaced' do
 				output = cli %(rename -Dv --tv-database mocktv -t "{n}!{t}" --space-replace "?" "#{TV_SHOW[:filename]}")
-				File.basename(out_file(output)).should eq("#{TV_SHOW[:seriesname]}!#{TV_SHOW[:title]}".gsub(/\s/, '?'))
+				File.basename(out_file output).should == "#{TV_SHOW[:seriesname]}!#{TV_SHOW[:title]}".gsub(/\s/, '?')
 			end
 
 			it 'should format the output with ONLY the filename spaces replaced' do

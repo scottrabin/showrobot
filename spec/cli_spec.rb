@@ -9,11 +9,11 @@ describe ShowRobot, 'command line executable' do
 	MOVIE_NAME = 'First Movie (2000).avi'
 	TV_SHOW_NAME = 'ShowSeries.S01E02.TheTitle.avi'
 	TV_SHOW = {
-		:filename   => 'ShowSeries.S01E02.TheTitle.avi',
-		:seriesname => 'ShowSeries',
+		:filename   => 'AnotherSeries.S01E02.TheTitle.avi',
+		:seriesname => 'Another Series',
 		:season     => '01',
 		:episode    => '02',
-		:title      => 'TheTitle',
+		:title      => 'Fifth Episode',
 		:extension  => 'avi'
 	}
 
@@ -117,6 +117,16 @@ describe ShowRobot, 'command line executable' do
 		end
 
 		describe '--space-replace' do
+			it 'should format the output with all spaces in the filename replaced' do
+				output = cli %(rename -Dv --tv-database mocktv -t "{n}!{t}" --space-replace "?" "#{TV_SHOW[:filename]}")
+				File.basename(out_file(output)).should eq("#{TV_SHOW[:seriesname]}!#{TV_SHOW[:title]}".gsub(/\s/, '?'))
+			end
+
+			it 'should format the output with ONLY the filename spaces replaced' do
+				dir = temp_file 'a b c dir'
+				output = cli %(rename -Dv --tv-database mocktv -t "#{dir}/{t}.{ext}" --space-replace "?" "#{TV_SHOW[:filename]}")
+				out_file(output).should eq("#{dir}/#{TV_SHOW[:title].gsub(/\s/, '?')}.#{TV_SHOW[:extension]}")
+			end
 		end
 
 	end

@@ -31,6 +31,14 @@ module ShowRobotHelper
 			$?.should == 0
 			r
 		end
+
+		def out_file cli_output
+			cli_output[ShowRobotHelper::CMD_RENAME_TO, 1]
+		end
+
+		def temp_file filename
+			"/tmp/.showrobot-test/#{filename}"
+		end
 	end
 end
 

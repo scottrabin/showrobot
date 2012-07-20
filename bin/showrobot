@@ -122,6 +122,11 @@ when :rename
 		end
 	end
 when :identify
+	ARGV.select { |file| ShowRobot::MediaFile.isvideo? file }.each do |file|
+		media = ShowRobot::MediaFile.load file
+
+		puts ShowRobot::guess(media)
+	end
 else
 	puts "Unknown subcommand: #{command.inspect}"
 end

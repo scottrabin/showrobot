@@ -105,20 +105,26 @@ when :rename
 			}
 		end
 
-		new_filename = File.expand_path(sprintf(filename_format, identity).gsub(/\s/, options[:space_replace]))
+		unless identity.nil?
 
-		puts "Would have performed the following operations:" if options[:dry_run]
+			new_filename = File.expand_path(sprintf(filename_format, identity).gsub(/\s/, options[:space_replace]))
 
-		# ensure the target directory exists
-		puts "mkdir -p \"#{File.dirname(new_filename)}\"" if ShowRobot.config[:verbose]
-		FileUtils.mkdir_p File.dirname(new_filename), :noop => options[:dry_run], :verbose => false
+			puts "Would have performed the following operations:" if options[:dry_run]
 
-		# if the file already exists, log an error
-		if File.exists? new_filename
-			ShowRobot.log :error, "mv failed (destination exists): [ #{file} ] --> [ #{new_filename} ]", :no_write => options[:dry_run]
+			# ensure the target directory exists
+			puts "mkdir -p \"#{File.dirname(new_filename)}\"" if ShowRobot.config[:verbose]
+			FileUtils.mkdir_p File.dirname(new_filename), :noop => options[:dry_run], :verbose => false
+
+			# if the file already exists, log an error
+			if File.exists? new_filename
+				ShowRobot.log :error, "mv failed (destination exists): [ #{file} ] --> [ #{new_filename} ]", :no_write => options[:dry_run]
+			else
+				ShowRobot.log :info, "mv [ #{file} ] --> [ #{new_filename} ]", :no_write => options[:dry_run]
+				FileUtils.mv file, new_filename, :noop => options[:dry_run], :verbose => false # verbosity here is covered by the logging statement
+			end
+
 		else
-			ShowRobot.log :info, "mv [ #{file} ] --> [ #{new_filename} ]", :no_write => options[:dry_run]
-			FileUtils.mv file, new_filename, :noop => options[:dry_run], :verbose => false # verbosity here is covered by the logging statement
+			warn "Could not rename file [ #{file} ]; unable to identify with db [ #{ShowRobot.config[media.is_movie? ? :movie_database : :tv_database ]} ]"
 		end
 	end
 when :identify

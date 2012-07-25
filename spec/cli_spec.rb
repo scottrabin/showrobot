@@ -46,13 +46,13 @@ describe ShowRobot, 'command line executable' do
 			end
 
 			it 'should not actually move the file' do
-				move = cli %(rename -Dm "#{@outfile}" "#{@startfile}")
+				move = cli %(rename -Df "#{config_file}" -m "#{@outfile}" "#{@startfile}")
 				File.exists?(@startfile).should == true
 				File.exists?(@outfile).should == false
 			end
 
 			it 'should move the file without the option' do
-				move = cli %(rename -m "#{@outfile}" "#{@startfile}")
+				move = cli %(rename -f "#{config_file}" -m "#{@outfile}" "#{@startfile}")
 				File.exists?(@startfile).should == false
 				File.exists?(@outfile).should == true
 			end

@@ -10,6 +10,10 @@ end
 
 require 'showrobot'
 
+Dir[File.dirname(__FILE__) + '/mock/*.rb'].each do |file| require file end
+ShowRobot.configure :config_file => File.expand_path(File.dirname(__FILE__) + '/config.yml')
+ShowRobot.load_config
+
 module ShowRobotHelper
 	CMD_RENAME_TO = /--> \[ (.*?) \]/
 
@@ -30,6 +34,10 @@ module ShowRobotHelper
 			r = `#{File.expand_path(File.dirname(__FILE__) + '/../bin/showrobot')} #{cmd}`
 			$?.should == 0
 			r
+		end
+
+		def config_file
+			File.expand_path(File.dirname(__FILE__) + '/config.yml')
 		end
 
 		def out_file cli_output

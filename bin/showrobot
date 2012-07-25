@@ -107,13 +107,15 @@ when :rename
 
 		unless identity.nil?
 
-			new_filename = File.expand_path(sprintf(filename_format, identity).gsub(/\s/, options[:space_replace]))
+			new_filename = File.expand_path(sprintf filename_format, identity)
+			dir = File.dirname new_filename
+			new_filename = (dir ? dir + '/' : '') + File.basename(new_filename).gsub(/\s/, options[:space_replace])
 
 			puts "Would have performed the following operations:" if options[:dry_run]
 
 			# ensure the target directory exists
-			puts "mkdir -p \"#{File.dirname(new_filename)}\"" if ShowRobot.config[:verbose]
-			FileUtils.mkdir_p File.dirname(new_filename), :noop => options[:dry_run], :verbose => false
+			puts "mkdir -p \"#{dir}\"" if ShowRobot.config[:verbose]
+			FileUtils.mkdir_p dir, :noop => options[:dry_run], :verbose => false
 
 			# if the file already exists, log an error
 			if File.exists? new_filename

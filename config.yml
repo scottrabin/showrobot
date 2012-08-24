@@ -1,4 +1,7 @@
 ---
+verbose: false
+use_cache: true
+cache_dir: ./cache
 tvdb_api_key: BA864DEE427E384A
 tmdb_api_key: 5a6edae568130bf10617b6d45be99f13
 tv_database: tvdb

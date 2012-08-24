@@ -45,15 +45,20 @@ def apply_options options={}
 
 		case key
 		when :config_file
-			ShowRobot.configure :config_file => options[:config_file]
-			ShowRobot.load_config
-		when :cache_dir, :tv_database, :movie_database, :verbose
-			ShowRobot.configure key, value
+			ShowRobot.config.load_from options[:config_file]
+		when :cache_dir
+			ShowRobot.config.cache_dir = value
+		when :tv_database
+			ShowRobot.config.tv_database = value
+		when :movie_database
+			ShowRobot.config.movie_database = value
+		when :verbose
+			ShowRobot.config.verbose = value
 		when :no_cache
-			ShowRobot.configure :use_cache, false
+			ShowRobot.config.use_cache = false
 		when :clear_cache
-			puts "Clearing cache in [ #{ShowRobot.config[:cache_dir]} ]" if ShowRobot.config[:verbose]
-			File.delete(*Dir[ShowRobot.config[:cache_dir] + '/*.cache'])
+			puts "Clearing cache in [ #{ShowRobot.config.cache_dir} ]" if ShowRobot.config.verbose
+			File.delete(*Dir[ShowRobot.config.cache_dir + '/*.cache'])
 		end
 	end
 end

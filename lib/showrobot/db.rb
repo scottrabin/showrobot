@@ -10,14 +10,14 @@ module ShowRobot
 	class TVDatasource < Datasource
 		# returns a list of series matching the given file
 		def series_list
-			puts "Fetching series data for [ #{@mediaFile.name_guess} ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot.config[:verbose] and @series_list.nil?
+			puts "Fetching series data for [ #{@mediaFile.name_guess} ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot.config.verbose and @series_list.nil?
 
 			@series_list ||= yield ShowRobot.fetch(self.class::DATA_TYPE, match_query)
 		end
 
 		# returns a list of episodes matching a given series
 		def episode_list
-			puts "Fetching episode data for [ #{series[:name]} ] from #{self.class::DB_NAME} (#{episode_query})" if ShowRobot.config[:verbose] and @episode_list.nil?
+			puts "Fetching episode data for [ #{series[:name]} ] from #{self.class::DB_NAME} (#{episode_query})" if ShowRobot.config.verbose and @episode_list.nil?
 
 			@episode_list ||= yield ShowRobot.fetch(self.class::DATA_TYPE, episode_query)
 		end
@@ -40,7 +40,7 @@ module ShowRobot
 	class MovieDatasource < Datasource
 		def movie_list
 			if @movie_list.nil?
-				puts "Fetching list of movies matching [ #{@mediaFile.name_guess} (#{@mediaFile.year}) ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot.config[:verbose]
+				puts "Fetching list of movies matching [ #{@mediaFile.name_guess} (#{@mediaFile.year}) ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot.config.verbose
 
 				# get the base movie list from the block
 				@movie_list = yield ShowRobot.fetch(self.class::DATA_TYPE, match_query)

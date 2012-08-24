@@ -31,7 +31,7 @@ when :config
 
 	apply_options options
 
-	file = opts[:global] ? File.dirname(__FILE__) + '/../config.yml' : ShowRobot.config[:config_file]
+	file = opts[:global] ? File.dirname(__FILE__) + '/../config.yml' : ShowRobot.config.config_file
 
 	conf = YAML::load(IO.read(file)) rescue {}
 
@@ -40,7 +40,7 @@ when :config
 		prop, val = ARGV.shift 2
 		conf[prop] = val
 
-		printf "Setting [ %-12s ] to [ %-12s ]\n", prop, val if ShowRobot.config[:verbose]
+		printf "Setting [ %-12s ] to [ %-12s ]\n", prop, val if ShowRobot.config.verbose
 	end
 
 	# write to the file
@@ -83,19 +83,19 @@ when :rename
 		media.type = :tv    if options[:force_tv]
 
 		# TODO - for testing, is there a better way to require these?
-		if ShowRobot.config[:movie_database].include? 'mock' or ShowRobot.config[:tv_database].include? 'mock'
+		if ShowRobot.config.movie_database.include? 'mock' or ShowRobot.config.tv_database.include? 'mock'
 			Dir[File.dirname(__FILE__) + '/../spec/mock/*.rb'].each { |file| require File.expand_path file }
 		end
 
 		if media.is_movie?
-			identity = identify media, ShowRobot.config[:movie_database], options[:prompt]
+			identity = identify media, ShowRobot.config.movie_database, options[:prompt]
 			filename_format = translate options[:movie_format], {
 				'{t}' => '%<title>s',
 				'{y}' => '%<year>04d',
 				'{ext}' => File.extname(file).sub(/^\./, '')
 			}
 		else
-			identity = identify media, ShowRobot.config[:tv_database], options[:prompt]
+			identity = identify media, ShowRobot.config.tv_database, options[:prompt]
 			filename_format = translate options[:tv_format], {
 				'{s}' => '%<season>02d',
 				'{e}' => '%<episode>02d',
@@ -114,7 +114,7 @@ when :rename
 			puts "Would have performed the following operations:" if options[:dry_run]
 
 			# ensure the target directory exists
-			puts "mkdir -p \"#{dir}\"" if ShowRobot.config[:verbose]
+			puts "mkdir -p \"#{dir}\"" if ShowRobot.config.verbose
 			FileUtils.mkdir_p dir, :noop => options[:dry_run], :verbose => false
 
 			# if the file already exists, log an error
@@ -126,7 +126,7 @@ when :rename
 			end
 
 		else
-			warn "Could not rename file [ #{file} ]; unable to identify with db [ #{ShowRobot.config[media.is_movie? ? :movie_database : :tv_database ]} ]"
+			warn "Could not rename file [ #{file} ]; unable to identify with db [ #{media.is_movie? ? ShowRobot.config.movie_database : ShowRobot.config.tv_database } ]"
 		end
 	end
 when :identify

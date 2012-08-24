@@ -6,7 +6,7 @@ describe ShowRobot, 'command line executable' do
 
 	# TODO - configuration editing tests
 	
-	MOVIE = {
+	movieData = {
 		:filename   => 'Fourth Movie: The Subtitle.(2003).avi',
 		:title      => 'Fourth Movie: The Subtitle',
 		:runtime    => 92,
@@ -60,7 +60,7 @@ describe ShowRobot, 'command line executable' do
 
 		describe '--movie-database' do
 			it 'should use the specified database for movies' do
-				output = cli %(rename -Dv --movie-database mockmovie "#{MOVIE[:filename]}")
+				output = cli %(rename -Dv --movie-database mockmovie "#{movieData[:filename]}")
 				# make sure the output contains a line like "from Some DB"
 				output.should include("from #{ShowRobot::MockMovie::DB_NAME}")
 			end
@@ -92,11 +92,11 @@ describe ShowRobot, 'command line executable' do
 		describe '--force-tv' do
 			it 'should use the tv database even though it looks like a movie' do
 				# make sure the movie actually gets parsed as a movie automatically
-				verify = cli %(rename -Dv --movie-database mockmovie "#{MOVIE[:filename]}")
+				verify = cli %(rename -Dv --movie-database mockmovie "#{movieData[:filename]}")
 				verify.should include("from #{ShowRobot::MockMovie::DB_NAME}")
 
 				# now make sure it gets forced to the mock movie db with --force-movie
-				movie = cli %(rename -Dv --tv-database mocktv --force-tv "#{MOVIE[:filename]}")
+				movie = cli %(rename -Dv --tv-database mocktv --force-tv "#{movieData[:filename]}")
 				movie.should include("from #{ShowRobot::MockTV::DB_NAME}")
 			end
 		end
@@ -104,14 +104,14 @@ describe ShowRobot, 'command line executable' do
 		describe '--movie-format' do
 			it 'should format the output parameters correctly' do
 				# for movies, {t} => title, {y} => year, {ext} => extension
-				title = cli %(rename -Dv --movie-database mockmovie -m "{t}" "#{MOVIE[:filename]}")
-				File.basename(out_file title).should == MOVIE[:title]
+				title = cli %(rename -Dv --movie-database mockmovie -m "{t}" "#{movieData[:filename]}")
+				File.basename(out_file title).should == movieData[:title]
 
-				year = cli %(rename -Dv --movie-database mockmovie -m "{y}" "#{MOVIE[:filename]}")
-				File.basename(out_file year).should == MOVIE[:year]
+				year = cli %(rename -Dv --movie-database mockmovie -m "{y}" "#{movieData[:filename]}")
+				File.basename(out_file year).should == movieData[:year]
 
-				extension = cli %(rename -Dv --movie-database mockmovie -m "{ext}" "#{MOVIE[:filename]}")
-				File.basename(out_file extension).should == MOVIE[:extension]
+				extension = cli %(rename -Dv --movie-database mockmovie -m "{ext}" "#{movieData[:filename]}")
+				File.basename(out_file extension).should == movieData[:extension]
 			end
 		end
 

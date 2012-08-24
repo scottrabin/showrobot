@@ -17,7 +17,10 @@ module ShowRobot
 	class Configuration
 
 		# base directory against which other files are loaded (i.e. cache/config/logs)
-		attr_accessor :basepath
+		attr_reader :basepath
+		def basepath= val
+			@basepath = @basepath + val
+		end
 
 		# verbosity of output
 		attr_accessor :verbose
@@ -26,7 +29,10 @@ module ShowRobot
 		attr_accessor :use_cache
 
 		# where the cache directory is located
-		attr_accessor :cache_dir
+		attr_reader :cache_dir
+		def cache_dir= val
+			@cache_dir = @basepath + val
+		end
 
 		# API key for The TVDB
 		attr_accessor :tvdb_api_key

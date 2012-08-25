@@ -42,22 +42,24 @@ module ShowRobot
 			if @movie_list.nil?
 				puts "Fetching list of movies matching [ #{@mediaFile.name_guess} (#{@mediaFile.year}) ] from #{self.class::DB_NAME} (#{match_query})" if ShowRobot.config.verbose
 
-				# get the base movie list from the block
-				@movie_list = yield ShowRobot.fetch(self.class::DATA_TYPE, match_query)
-			end
-
-			# TODO - reprocessing the list each time is expensive, but maintaining a filtered list prevents redefining @mediaFile properties
-			list = @movie_list.dup
-
-			list.select! { |movie| movie[:year] == @mediaFile.year } if not @mediaFile.year.nil?
-			list.sort do |a, b|
-				distance = distance_differential(a[:title], b[:title], @mediaFile.name_guess)
-				if distance == 0 and not a[:runtime].nil? and not b[:runtime].nil?
-					(a[:runtime] - @mediaFile.runtime).to_i.abs - (b[:runtime] - @mediaFile.runtime).to_i.abs
-				else
-					distance
+				# get the base movie list from the block, and sort
+				# by: matching year, then word distance to title, then by matching runtimes
+				@movie_list = yield(ShowRobot.fetch(self.class::DATA_TYPE, match_query)).sort do |a, b|
+					# if only one of the items matches the provided file's year, that one should come first
+					if not @mediaFile.year.nil? and a[:year] != b[:year] and (a[:year] == @mediaFile.year or b[:year] == @mediaFile.year)
+						(a[:year] - @mediaFile.year).to_i.abs - (b[:year] - @mediaFile.year).to_i.abs
+					else
+						# compute Levenshtein distance differential between item A and B to the given title
+						distance = distance_differential(a[:title], b[:title], @mediaFile.name_guess)
+						if distance == 0 and not a[:runtime].nil? and not b[:runtime].nil?
+							(a[:runtime] - @mediaFile.runtime).to_i.abs - (b[:runtime] - @mediaFile.runtime).to_i.abs
+						else
+							distance
+						end
+					end
 				end
 			end
+			@movie_list
 		end
 	end
 

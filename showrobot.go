@@ -6,6 +6,8 @@ import "github.com/scottrabin/showrobot/config"
 import "os"
 
 func main() {
+	fileFlag := cli.StringFlag{"file, f", config.GetDefaultConfigurationPath(), "Use the specified configuration file"}
+
 	app := cli.NewApp()
 	app.Name = "showrobot"
 	app.Version = "0.0.1"
@@ -16,9 +18,7 @@ func main() {
 			Usage: "get or set the configuration value for a given key",
 			Description: `Modify the default configuration values for showrobot
 when run without command line overrides`,
-			Flags: []cli.Flag{
-				cli.StringFlag{"file", config.GetDefaultConfigurationPath(), "Use the specified configuration file"},
-			},
+			Flags: []cli.Flag{fileFlag},
 			Action: func(c *cli.Context) {
 				var err error
 				var value string

@@ -6,10 +6,12 @@ import "io/ioutil"
 import "os"
 import "os/user"
 import "path/filepath"
+import "strings"
 
 type Configuration struct {
-	Format   string `json:"format"`
-	Language string `json:"language"`
+	Format   string             `json:"format"`
+	Language string             `json:"language"`
+	ApiKey   map[string]*string `json:"apikey"`
 }
 
 type InvalidPropertyAccess struct {
@@ -33,6 +35,7 @@ func Load(file string) (Configuration, error) {
 	conf := Configuration{
 		Format:   "",
 		Language: "en",
+		ApiKey:   make(map[string]*string),
 	}
 
 	contents, err := ioutil.ReadFile(file)
@@ -57,28 +60,50 @@ func (conf *Configuration) Save(file string) error {
 	return err
 }
 
-func (conf *Configuration) Get(property string) (value string, err error) {
-	switch property {
+func (conf *Configuration) getConfigProperty(property string) (*string, error) {
+	var err error
+
+	fields := strings.Split(property, ".")
+
+	switch fields[0] {
 	case "format":
-		value = conf.Format
+		return &conf.Format, err
 	case "language":
-		value = conf.Language
+		return &conf.Language, err
+	case "apikey":
+		if len(fields) == 2 {
+			valueAddr, has := conf.ApiKey[fields[1]]
+			if !has {
+				valueAddr = new(string)
+				conf.ApiKey[fields[1]] = valueAddr
+			}
+			return valueAddr, nil
+		} else {
+			err = fmt.Errorf("Setting an API key requires an API subkey")
+		}
 	default:
-		err = &InvalidPropertyAccess{property}
+		err = &InvalidPropertyAccess{fields[0]}
+	}
+
+	return nil, err
+}
+
+func (conf *Configuration) Get(property string) (value string, err error) {
+	valueAddr, err := conf.getConfigProperty(property)
+
+	if err == nil {
+		value = *valueAddr
 	}
 
 	return
 }
 
-func (conf *Configuration) Set(property string, value string) (err error) {
-	switch property {
-	case "format":
-		conf.Format = value
-	case "language":
-		conf.Language = value
-	default:
-		err = &InvalidPropertyAccess{property}
+func (conf *Configuration) Set(property string, value string) error {
+	valueAddr, err := conf.getConfigProperty(property)
+
+	if err == nil {
+		*valueAddr = value
 	}
 
-	return
+	return err
 }

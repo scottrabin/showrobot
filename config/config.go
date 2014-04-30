@@ -12,6 +12,9 @@ type Configuration struct {
 	Format   string             `json:"format"`
 	Language string             `json:"language"`
 	ApiKey   map[string]*string `json:"apikey"`
+	Template struct {
+		Movie string
+	}
 }
 
 type InvalidPropertyAccess struct {
@@ -31,19 +34,18 @@ func GetDefaultConfigurationPath() string {
 	return filepath.Join(usr.HomeDir, ".showrobot/config.json")
 }
 
-func Load(file string) (Configuration, error) {
-	conf := Configuration{
-		Format:   "",
-		Language: "en",
-		ApiKey:   make(map[string]*string),
-	}
+func Load(file string) (conf Configuration, err error) {
+	conf.Format = ""
+	conf.Language = "en"
+	conf.ApiKey = make(map[string]*string)
+	conf.Template.Movie = "{{.Match.Name}} ({{.Match.Year}}){{.Original.GetExtension}}"
 
 	contents, err := ioutil.ReadFile(file)
 	if err == nil {
 		json.Unmarshal(contents, &conf)
 	}
 
-	return conf, err
+	return
 }
 
 func (conf *Configuration) Save(file string) error {

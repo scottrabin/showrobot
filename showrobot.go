@@ -1,11 +1,13 @@
 package main
 
+import "bytes"
 import "fmt"
 import "github.com/codegangsta/cli"
 import "github.com/scottrabin/showrobot/config"
 import "github.com/scottrabin/showrobot/datasource"
 import "github.com/scottrabin/showrobot/media"
 import "os"
+import "text/template"
 
 func main() {
 	fileFlag := cli.StringFlag{"file, f", config.GetDefaultConfigurationPath(), "Use the specified configuration file"}
@@ -60,11 +62,32 @@ when run without command line overrides`,
 				args := c.Args()
 				conf, _ := config.Load(c.String("file"))
 
-				mf, _ := media.NewMediaFile(args[0])
+				mf, err := media.NewMedia(args[0])
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
 				ds := datasource.NewMovieSource(conf, "themoviedb")
 				movies := ds.GetMovies(mf)
 
-				fmt.Println(movies)
+				// TODO sort movies by match likelihood
+
+				// TODO handle errors here
+				tmpl, _ := template.New("movie").Parse(conf.Template.Movie)
+				tmplData := struct {
+					Original media.Media
+					Match    media.Movie
+				}{mf, movies[0]}
+
+				var buf bytes.Buffer
+				tmpl.Execute(&buf, tmplData)
+				fmt.Printf("Rename `%s` to `%s`\n", mf.GetFileName(), buf.String())
+				for i, candidate := range movies {
+					buf.Reset()
+					tmplData.Match = candidate
+					tmpl.Execute(&buf, tmplData)
+					fmt.Printf("  %d: %s\n", i, buf.String())
+				}
 			},
 		},
 	}

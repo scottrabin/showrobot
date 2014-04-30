@@ -7,53 +7,64 @@ import "strings"
 import "strconv"
 import "time"
 
-const MOVIE_DURATION = 60 * time.Minute
+type Movie struct {
+	Name    string
+	Runtime time.Duration
+	Year    int
+}
+
+type MediaType int
 
 type MediaFile struct {
 	source string
 }
 
 type Media interface {
+	GetPath() string
 	GetFileName() string
+	GetExtension() string
+	GuessName() string
 	GetRuntime() time.Duration
 }
 
+const MOVIE_DURATION = 60 * time.Minute
+
+const (
+	MOVIE MediaType = iota
+	TVSHOW
+)
+
 var year_locator_regexp, non_word_regexp *regexp.Regexp
 
-func (m *MediaFile) GetFileName() string {
-	return m.source
-}
+func NewMedia(file string) (m Media, err error) {
+	mf := MediaFile{file}
 
-func init() {
-	year_locator_regexp = regexp.MustCompile("(\\(\\d{4}\\)|\\[\\d{4}\\])")
-	non_word_regexp = regexp.MustCompile("\\W+")
-}
-
-func NewMediaFile(file string) (m Media, err error) {
-	ext := filepath.Ext(file)
-
-	switch ext {
+	switch mf.GetExtension() {
 	case ".avi":
-		m = &AviMediaFile{MediaFile{file}}
+		m = &AviMediaFile{mf}
 	default:
-		err = fmt.Errorf("Unknown file extension: %s", ext)
+		err = fmt.Errorf("Unknown file extension: %s", mf.GetExtension())
 	}
 
 	return m, err
 }
 
-func getFileName(media Media) string {
-	// start with the filename
-	file := media.GetFileName()
-
-	// remove the extension
-	basename := filepath.Base(file)
-	ext := filepath.Ext(file)
-	return strings.TrimSuffix(basename, ext)
+func (m *MediaFile) GetPath() string {
+	return m.source
 }
 
-func GuessName(media Media) (guess string) {
-	guess = getFileName(media)
+func (m *MediaFile) GetExtension() string {
+	return filepath.Ext(m.GetPath())
+}
+
+func (m *MediaFile) GetFileName() string {
+	// remove the extension
+	basename := filepath.Base(m.GetPath())
+	return strings.TrimSuffix(basename, m.GetExtension())
+}
+
+func (m *MediaFile) GuessName() (guess string) {
+	guess = m.GetFileName()
 
 	// Remove any year-looking parens
 	// (include everything after that because it's usually junk metadata)
@@ -68,8 +79,8 @@ func GuessName(media Media) (guess string) {
 	return
 }
 
-func GuessYear(media Media) int {
-	yearStr := year_locator_regexp.FindString(getFileName(media))
+func (m *MediaFile) GuessYear() int {
+	yearStr := year_locator_regexp.FindString(m.GetFileName())
 	if len(yearStr) > 0 {
 		year, err := strconv.Atoi(yearStr)
 		if err == nil {
@@ -80,6 +91,20 @@ func GuessYear(media Media) int {
 	return 0
 }
 
-func IsMovie(media Media) bool {
-	return media.GetRuntime() >= MOVIE_DURATION
+func (m *MediaFile) GetRuntime() time.Duration {
+	// this should be overridden by all structs that embed the MediaFile type
+	return 0 * time.Second
+}
+
+func (m *MediaFile) GuessType() MediaType {
+	if m.GetRuntime() >= MOVIE_DURATION {
+		return MOVIE
+	} else {
+		return TVSHOW
+	}
+}
+
+func init() {
+	year_locator_regexp = regexp.MustCompile("(\\(\\d{4}\\)|\\[\\d{4}\\])")
+	non_word_regexp = regexp.MustCompile("\\W+")
 }

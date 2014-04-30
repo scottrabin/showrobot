@@ -12,7 +12,7 @@ type TheMovieDB struct {
 	config config.Configuration
 }
 
-func (ds *TheMovieDB) GetMovies(target media.Media) []Movie {
+func (ds *TheMovieDB) GetMovies(target media.Media) []media.Movie {
 	var jsonResults struct {
 		Page          int
 		Results       []struct {
@@ -24,7 +24,7 @@ func (ds *TheMovieDB) GetMovies(target media.Media) []Movie {
 		Total_results int
 	}
 
-	url := ds.getQuery(media.GuessName(target))
+	url := ds.getQuery(target.GuessName())
 	response, err := http.Get(url)
 	if err != nil {
 		return nil
@@ -38,10 +38,10 @@ func (ds *TheMovieDB) GetMovies(target media.Media) []Movie {
 
 	json.Unmarshal(body, &jsonResults)
 
-	result := make([]Movie, len(jsonResults.Results))
+	result := make([]media.Movie, len(jsonResults.Results))
 	for i, r := range jsonResults.Results {
 		released, _ := time.Parse("2006-01-02", r.Release_date)
-		result[i] = Movie{Name: r.Title, Year: released.Year()}
+		result[i] = media.Movie{Name: r.Title, Year: released.Year()}
 	}
 
 	return result

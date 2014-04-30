@@ -27,7 +27,7 @@ when run without command line overrides`,
 				var err error
 				var value string
 				args := c.Args()
-				conf, _ := config.Load(c.String("file"))
+				conf := loadConfig(c)
 
 				switch len(args) {
 				case 2:
@@ -60,7 +60,7 @@ when run without command line overrides`,
 			Flags:       []cli.Flag{fileFlag},
 			Action: func(c *cli.Context) {
 				args := c.Args()
-				conf, _ := config.Load(c.String("file"))
+				conf := loadConfig(c)
 
 				mf, err := media.NewMedia(args[0])
 				if err != nil {
@@ -92,4 +92,11 @@ when run without command line overrides`,
 		},
 	}
 	app.Run(os.Args)
+}
+
+func loadConfig(ctx *cli.Context) config.Configuration {
+	// TODO handle configuration load errors here
+	conf, _ := config.Load(ctx.String("file"))
+
+	return conf
 }

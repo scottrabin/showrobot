@@ -3,6 +3,8 @@ package main
 import "fmt"
 import "github.com/codegangsta/cli"
 import "github.com/scottrabin/showrobot/config"
+import "github.com/scottrabin/showrobot/datasource"
+import "github.com/scottrabin/showrobot/media"
 import "os"
 
 func main() {
@@ -47,6 +49,22 @@ when run without command line overrides`,
 					fmt.Println(err)
 					os.Exit(1)
 				}
+			},
+		},
+		{
+			Name: "identify",
+			Usage: "display best media match for given file",
+			Description: "Report the best matching media item for the given file",
+			Flags: []cli.Flag{fileFlag},
+			Action: func(c *cli.Context) {
+				args := c.Args()
+				conf, _ := config.Load(c.String("file"))
+
+				mf, _ := media.NewMediaFile(args[0])
+				ds := datasource.NewMovieSource(conf, "themoviedb")
+				movies := ds.GetMovies(mf)
+
+				fmt.Println(movies)
 			},
 		},
 	}

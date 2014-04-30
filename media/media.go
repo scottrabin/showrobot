@@ -24,13 +24,16 @@ type Media interface {
 	GetFileName() string
 	GetExtension() string
 	GuessName() string
+	GuessYear() int
+	GuessType() MediaType
 	GetRuntime() time.Duration
 }
 
 const MOVIE_DURATION = 60 * time.Minute
 
 const (
-	MOVIE MediaType = iota
+	UNKNOWN MediaType = iota
+	MOVIE
 	TVSHOW
 )
 
@@ -93,7 +96,7 @@ func (m *MediaFile) GuessYear() int {
 
 func (m *MediaFile) GetRuntime() time.Duration {
 	// this should be overridden by all structs that embed the MediaFile type
-	return 0 * time.Second
+	return time.Duration(0)
 }
 
 func (m *MediaFile) GuessType() MediaType {

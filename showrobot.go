@@ -11,6 +11,7 @@ import "text/template"
 
 func main() {
 	fileFlag := cli.StringFlag{"file, f", config.GetDefaultConfigurationPath(), "Use the specified configuration file"}
+	typeFlag := cli.StringFlag{"type, t", "auto", "Use the specified type for matching the media file"}
 
 	app := cli.NewApp()
 	app.Name = "showrobot"
@@ -57,7 +58,7 @@ when run without command line overrides`,
 			Name:        "identify",
 			Usage:       "display best media match for given file",
 			Description: "Report the best matching media item for the given file",
-			Flags:       []cli.Flag{fileFlag},
+			Flags:       []cli.Flag{fileFlag, typeFlag},
 			Action: func(c *cli.Context) {
 				args := c.Args()
 				conf := loadConfig(c)
@@ -67,8 +68,21 @@ when run without command line overrides`,
 					fmt.Println(err)
 					os.Exit(1)
 				}
-				ds := datasource.NewMovieSource(conf, "themoviedb")
-				movies := ds.GetMovies(mf)
+
+				var matches []media.Movie
+
+				switch mtype, err := getMediaType(c, mf); mtype {
+				case media.MOVIE:
+					ds := datasource.NewMovieSource(conf, "themoviedb")
+					matches = ds.GetMovies(mf)
+				case media.TVSHOW:
+					// TODO
+					err = fmt.Errorf("TV show identification not yet implemented")
+					fallthrough
+				case media.UNKNOWN:
+					fmt.Println(err)
+					os.Exit(1)
+				}
 
 				// TODO sort movies by match likelihood
 
@@ -77,12 +91,12 @@ when run without command line overrides`,
 				tmplData := struct {
 					Original media.Media
 					Match    media.Movie
-				}{mf, movies[0]}
+				}{mf, matches[0]}
 
 				var buf bytes.Buffer
 				tmpl.Execute(&buf, tmplData)
 				fmt.Printf("Rename `%s` to `%s`\n", mf.GetFileName(), buf.String())
-				for i, candidate := range movies {
+				for i, candidate := range matches {
 					buf.Reset()
 					tmplData.Match = candidate
 					tmpl.Execute(&buf, tmplData)
@@ -99,4 +113,19 @@ func loadConfig(ctx *cli.Context) config.Configuration {
 	conf, _ := config.Load(ctx.String("file"))
 
 	return conf
+}
+
+func getMediaType(ctx *cli.Context, mf media.Media) (media.MediaType, error) {
+	switch ctx.String("type") {
+	case "movie":
+		return media.MOVIE, nil
+	case "tvshow":
+		return media.TVSHOW, nil
+	case "auto":
+		return mf.GuessType(), nil
+	default:
+		return media.UNKNOWN, fmt.Errorf(
+			"`type` flag must be one of `movie`, `tvshow`, or `auto`; got %s\n",
+			ctx.String("type"))
+	}
 }

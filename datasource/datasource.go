@@ -11,7 +11,7 @@ type Movie struct {
 }
 
 type MovieDatasource interface {
-	GetMovies(media.MediaFile) []Movie
+	GetMovies(media.Media) []Movie
 }
 
 func NewMovieSource(conf config.Configuration, which string) MovieDatasource {

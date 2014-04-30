@@ -52,10 +52,10 @@ when run without command line overrides`,
 			},
 		},
 		{
-			Name: "identify",
-			Usage: "display best media match for given file",
+			Name:        "identify",
+			Usage:       "display best media match for given file",
 			Description: "Report the best matching media item for the given file",
-			Flags: []cli.Flag{fileFlag},
+			Flags:       []cli.Flag{fileFlag},
 			Action: func(c *cli.Context) {
 				args := c.Args()
 				conf, _ := config.Load(c.String("file"))

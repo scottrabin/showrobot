@@ -12,7 +12,7 @@ type TheMovieDB struct {
 	config config.Configuration
 }
 
-func (ds *TheMovieDB) GetMovies(target media.MediaFile) []Movie {
+func (ds *TheMovieDB) GetMovies(target media.Media) []Movie {
 	var jsonResults struct {
 		Page          int
 		Results       []struct {

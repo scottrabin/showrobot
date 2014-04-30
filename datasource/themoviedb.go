@@ -14,9 +14,9 @@ type TheMovieDB struct {
 
 func (ds *TheMovieDB) GetMovies(target media.Media) []media.Movie {
 	var jsonResults struct {
-		Page          int
-		Results       []struct {
-			Id int
+		Page    int
+		Results []struct {
+			Id           int
 			Release_date string
 			Title        string
 		}

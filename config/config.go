@@ -13,7 +13,8 @@ type Configuration struct {
 	Language string             `json:"language"`
 	ApiKey   map[string]*string `json:"apikey"`
 	Template struct {
-		Movie string
+		Movie  string
+		TVShow string
 	}
 }
 
@@ -39,6 +40,7 @@ func Load(file string) (conf Configuration, err error) {
 	conf.Language = "en"
 	conf.ApiKey = make(map[string]*string)
 	conf.Template.Movie = "{{.Match.Name}} ({{.Match.Year}}){{.Original.GetExtension}}"
+	conf.Template.TVShow = "TODO"
 
 	contents, err := ioutil.ReadFile(file)
 	if err == nil {
@@ -69,9 +71,9 @@ func (conf *Configuration) getConfigProperty(property string) (*string, error) {
 
 	switch fields[0] {
 	case "format":
-		return &conf.Format, err
+		return &conf.Format, nil
 	case "language":
-		return &conf.Language, err
+		return &conf.Language, nil
 	case "apikey":
 		if len(fields) == 2 {
 			valueAddr, has := conf.ApiKey[fields[1]]
@@ -83,6 +85,16 @@ func (conf *Configuration) getConfigProperty(property string) (*string, error) {
 		} else {
 			err = fmt.Errorf("Setting an API key requires an API subkey")
 		}
+	case "template":
+		if len(fields) == 2 {
+			switch fields[1] {
+			case "movie":
+				return &conf.Template.Movie, nil
+			case "tvshow":
+				return &conf.Template.TVShow, nil
+			}
+		}
+		err = fmt.Errorf("Setting a template requires a subkey (`movie` or `tvshow`)")
 	default:
 		err = &InvalidPropertyAccess{fields[0]}
 	}

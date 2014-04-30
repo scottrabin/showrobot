@@ -4,7 +4,7 @@ import "github.com/scottrabin/showrobot/config"
 import "github.com/scottrabin/showrobot/media"
 
 type MovieDatasource interface {
-	GetMovies(media.Media) []media.Movie
+	GetMovies(string) []media.Movie
 }
 
 func NewMovieSource(conf config.Configuration, which string) MovieDatasource {

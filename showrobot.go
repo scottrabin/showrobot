@@ -12,6 +12,7 @@ import "text/template"
 func main() {
 	fileFlag := cli.StringFlag{"file, f", config.GetDefaultConfigurationPath(), "Use the specified configuration file"}
 	typeFlag := cli.StringFlag{"type, t", "auto", "Use the specified type for matching the media file"}
+	queryFlag := cli.StringFlag{"query, q", "", "Use the specified string as the search term instead of guessing from the file name"}
 
 	app := cli.NewApp()
 	app.Name = "showrobot"
@@ -58,7 +59,7 @@ when run without command line overrides`,
 			Name:        "identify",
 			Usage:       "display best media match for given file",
 			Description: "Report the best matching media item for the given file",
-			Flags:       []cli.Flag{fileFlag, typeFlag},
+			Flags:       []cli.Flag{fileFlag, typeFlag, queryFlag},
 			Action: func(c *cli.Context) {
 				args := c.Args()
 				conf := loadConfig(c)
@@ -74,7 +75,8 @@ when run without command line overrides`,
 				switch mtype, err := getMediaType(c, mf); mtype {
 				case media.MOVIE:
 					ds := datasource.NewMovieSource(conf, "themoviedb")
-					matches = ds.GetMovies(mf)
+					query := getQuery(c, mf)
+					matches = ds.GetMovies(query)
 				case media.TVSHOW:
 					// TODO
 					err = fmt.Errorf("TV show identification not yet implemented")
@@ -128,4 +130,11 @@ func getMediaType(ctx *cli.Context, mf media.Media) (media.MediaType, error) {
 			"`type` flag must be one of `movie`, `tvshow`, or `auto`; got %s\n",
 			ctx.String("type"))
 	}
+}
+
+func getQuery(ctx *cli.Context, mf media.Media) string {
+	if q := ctx.String("query"); len(q) > 0 {
+		return q
+	}
+	return mf.GuessName()
 }

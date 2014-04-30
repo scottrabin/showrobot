@@ -12,7 +12,7 @@ type TheMovieDB struct {
 	config config.Configuration
 }
 
-func (ds *TheMovieDB) GetMovies(target media.Media) []media.Movie {
+func (ds *TheMovieDB) GetMovies(query string) []media.Movie {
 	var jsonResults struct {
 		Page    int
 		Results []struct {
@@ -24,7 +24,7 @@ func (ds *TheMovieDB) GetMovies(target media.Media) []media.Movie {
 		Total_results int
 	}
 
-	url := ds.getQuery(target.GuessName())
+	url := ds.getQuery(query)
 	response, err := http.Get(url)
 	if err != nil {
 		return nil

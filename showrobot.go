@@ -64,7 +64,7 @@ when run without command line overrides`,
 				args := c.Args()
 				conf := loadConfig(c)
 
-				mf, err := media.NewMedia(args[0])
+				m, err := media.New(args[0])
 				if err != nil {
 					fmt.Println(err)
 					os.Exit(1)
@@ -72,10 +72,10 @@ when run without command line overrides`,
 
 				var matches []media.Movie
 
-				switch mtype, err := getMediaType(c, mf); mtype {
+				switch mtype, err := getMediaType(c, m); mtype {
 				case media.MOVIE:
 					ds := datasource.NewMovieSource(conf, "themoviedb")
-					query := getQuery(c, mf)
+					query := getQuery(c, m)
 					matches = ds.GetMovies(query)
 				case media.TVSHOW:
 					// TODO
@@ -93,11 +93,11 @@ when run without command line overrides`,
 				tmplData := struct {
 					Original media.Media
 					Match    media.Movie
-				}{mf, matches[0]}
+				}{m, matches[0]}
 
 				var buf bytes.Buffer
 				tmpl.Execute(&buf, tmplData)
-				fmt.Printf("Rename `%s` to `%s`\n", mf.GetFileName(), buf.String())
+				fmt.Printf("Rename `%s` to `%s`\n", m.Source(), buf.String())
 				for i, candidate := range matches {
 					buf.Reset()
 					tmplData.Match = candidate
@@ -117,14 +117,14 @@ func loadConfig(ctx *cli.Context) config.Configuration {
 	return conf
 }
 
-func getMediaType(ctx *cli.Context, mf media.Media) (media.MediaType, error) {
+func getMediaType(ctx *cli.Context, m media.Media) (media.MediaType, error) {
 	switch ctx.String("type") {
 	case "movie":
 		return media.MOVIE, nil
 	case "tvshow":
 		return media.TVSHOW, nil
 	case "auto":
-		return mf.GuessType(), nil
+		return media.GuessType(m), nil
 	default:
 		return media.UNKNOWN, fmt.Errorf(
 			"`type` flag must be one of `movie`, `tvshow`, or `auto`; got %s\n",
@@ -132,9 +132,9 @@ func getMediaType(ctx *cli.Context, mf media.Media) (media.MediaType, error) {
 	}
 }
 
-func getQuery(ctx *cli.Context, mf media.Media) string {
+func getQuery(ctx *cli.Context, m media.Media) string {
 	if q := ctx.String("query"); len(q) > 0 {
 		return q
 	}
-	return mf.GuessName()
+	return media.GuessName(m)
 }

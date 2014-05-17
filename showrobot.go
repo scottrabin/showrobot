@@ -64,9 +64,9 @@ when run without command line overrides`,
 			},
 		},
 		{
-			Name:        "identify",
-			Usage:       "display best media match for given file",
-			Description: "Report the best matching media item for the given file",
+			Name:        "rename",
+			Usage:       "rename a file by finding information from the internet",
+			Description: "Rename a file using information from an external service",
 			Flags:       []cli.Flag{fileFlag, typeFlag, queryFlag, interactiveFlag, noopFlag},
 			Action: func(c *cli.Context) {
 				args := c.Args()

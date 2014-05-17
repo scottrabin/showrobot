@@ -8,17 +8,17 @@ import "strings"
 var year_locator_regexp, non_word_regexp *regexp.Regexp
 
 func extractBaseName(m Media) string {
-  src := m.Source()
-  basename := filepath.Base(src)
-  extension := filepath.Ext(src)
+	src := m.Source()
+	basename := filepath.Base(src)
+	extension := filepath.Ext(src)
 
-  return strings.TrimSuffix(basename, extension)
+	return strings.TrimSuffix(basename, extension)
 }
 
 // GuessName attempts to guess the best searchable name for a given media file
 // based on the filename
 func GuessName(m Media) string {
-  guess := extractBaseName(m)
+	guess := extractBaseName(m)
 
 	// Remove any year-looking parens
 	// (include everything after that because it's usually junk metadata)
@@ -36,7 +36,7 @@ func GuessName(m Media) string {
 // GuessYear attempts to guess the year associated with a media file based on
 // the filename
 func GuessYear(m Media) int {
-  fn := extractBaseName(m)
+	fn := extractBaseName(m)
 	yearStr := year_locator_regexp.FindString(fn)
 	if len(yearStr) > 0 {
 		year, err := strconv.Atoi(yearStr)

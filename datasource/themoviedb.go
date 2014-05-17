@@ -66,3 +66,19 @@ func (ds *TheMovieDB) getQuery(query string) string {
 
 	return u.String()
 }
+
+func (ds *TheMovieDB) IsValid(mt media.MediaType) bool {
+	switch mt {
+	case media.MOVIE:
+		_, ok := ds.config.ApiKey["themoviedb"]
+		return ok
+	default:
+		return false
+	}
+}
+
+func init() {
+	datasources["themoviedb"] = func(conf config.Configuration) Datasource {
+		return &TheMovieDB{conf}
+	}
+}

@@ -77,42 +77,43 @@ when run without command line overrides`,
 					fmt.Println(err)
 					os.Exit(1)
 				}
-				m, err := media.New(filepath.Join(pwd, args[0]))
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
 
-				var matches []media.Movie
+				for _, p := range args {
+					m, err := media.New(filepath.Join(pwd, p))
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
 
-				switch mtype, err := getMediaType(c, m); mtype {
-				case media.MOVIE:
-					ds := datasource.NewMovieSource(conf, "themoviedb")
+					mtype, err := getMediaType(c, m)
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
+
+					ds, err := datasource.New(conf, mtype)
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
+
 					query := getQuery(c, m)
-					matches = ds.GetMovies(query)
-				case media.TVSHOW:
-					// TODO
-					err = fmt.Errorf("TV show identification not yet implemented")
-					fallthrough
-				case media.UNKNOWN:
-					fmt.Println(err)
-					os.Exit(1)
-				}
+					matches := ds.GetMovies(query)
+					bestMatch := getBestMatch(c, m, matches)
 
-				bestMatch := getBestMatch(c, matches)
+					// TODO handle errors here
+					tmpl, _ := template.New("movie").Parse(conf.Template.Movie)
 
-				// TODO handle errors here
-				tmpl, _ := template.New("movie").Parse(conf.Template.Movie)
+					var buf bytes.Buffer
+					tmpl.Execute(&buf, ResultFormat{filepath.Ext(m.Source()), bestMatch})
 
-				var buf bytes.Buffer
-				tmpl.Execute(&buf, ResultFormat{filepath.Ext(m.Source()), bestMatch})
-
-				if c.Bool("noop") {
-					// TODO Go doesn't have a way to escape shell arguments because the language
-					// is actually well designed, but it would be nice to format the following anyway...
-					fmt.Printf("mv \"%s\" \"%s\"\n", m.Source(), buf.String())
-				} else {
-					os.Rename(m.Source(), buf.String())
+					if c.Bool("noop") {
+						// TODO Go doesn't have a way to escape shell arguments because the language
+						// is actually well designed, but it would be nice to format the following anyway...
+						fmt.Printf("mv \"%s\" \"%s\"\n", m.Source(), buf.String())
+					} else {
+						os.Rename(m.Source(), buf.String())
+					}
 				}
 			},
 		},
@@ -152,11 +153,11 @@ func getQuery(ctx *cli.Context, m media.Media) string {
 	return media.GuessName(m)
 }
 
-func getBestMatch(ctx *cli.Context, matches []media.Movie) media.Movie {
+func getBestMatch(ctx *cli.Context, m media.Media, matches []media.Movie) media.Movie {
 	if ctx.Bool("interactive") {
+		fmt.Printf("Select match for [[ %s ]]\n", m.Source())
 		var optBuf bytes.Buffer
 		optTmpl, _ := template.New("movieOption").Parse("{{.Name}} ({{.Year}})")
-
 		for i, opt := range matches {
 			optBuf.Reset()
 			optTmpl.Execute(&optBuf, opt)

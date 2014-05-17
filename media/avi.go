@@ -2,7 +2,7 @@ package media
 
 import "time"
 
-type aviMediaFormat struct {}
+type aviMediaFormat struct{}
 
 func (media *aviMediaFormat) Duration(m Media) time.Duration {
 	// TODO find a way to determine the actual runtime of the file
@@ -10,5 +10,5 @@ func (media *aviMediaFormat) Duration(m Media) time.Duration {
 }
 
 func init() {
-  Register(".avi", &aviMediaFormat{})
+	Register(".avi", &aviMediaFormat{})
 }

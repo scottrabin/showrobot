@@ -20,6 +20,7 @@ func main() {
 	typeFlag := cli.StringFlag{"type, t", "auto", "Use the specified type for matching the media file"}
 	queryFlag := cli.StringFlag{"query, q", "", "Use the specified string as the search term instead of guessing from the file name"}
 	interactiveFlag := cli.BoolFlag{"interactive, i", "Interactively list options to choose from"}
+	noopFlag := cli.BoolFlag{"noop, n", "Report the intended action instead of performing it"}
 
 	app := cli.NewApp()
 	app.Name = "showrobot"
@@ -66,12 +67,17 @@ when run without command line overrides`,
 			Name:        "identify",
 			Usage:       "display best media match for given file",
 			Description: "Report the best matching media item for the given file",
-			Flags:       []cli.Flag{fileFlag, typeFlag, queryFlag, interactiveFlag},
+			Flags:       []cli.Flag{fileFlag, typeFlag, queryFlag, interactiveFlag, noopFlag},
 			Action: func(c *cli.Context) {
 				args := c.Args()
 				conf := loadConfig(c)
 
-				m, err := media.New(args[0])
+				pwd, err := os.Getwd()
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				m, err := media.New(filepath.Join(pwd, args[0]))
 				if err != nil {
 					fmt.Println(err)
 					os.Exit(1)
@@ -100,7 +106,14 @@ when run without command line overrides`,
 
 				var buf bytes.Buffer
 				tmpl.Execute(&buf, ResultFormat{filepath.Ext(m.Source()), bestMatch})
-				fmt.Printf("Rename `%s` to `%s`\n", m.Source(), buf.String())
+
+				if c.Bool("noop") {
+					// TODO Go doesn't have a way to escape shell arguments because the language
+					// is actually well designed, but it would be nice to format the following anyway...
+					fmt.Printf("mv \"%s\" \"%s\"\n", m.Source(), buf.String())
+				} else {
+					os.Rename(m.Source(), buf.String())
+				}
 			},
 		},
 	}
@@ -108,8 +121,11 @@ when run without command line overrides`,
 }
 
 func loadConfig(ctx *cli.Context) config.Configuration {
-	// TODO handle configuration load errors here
-	conf, _ := config.Load(ctx.String("file"))
+	conf, err := config.Load(ctx.String("file"))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
 	return conf
 }

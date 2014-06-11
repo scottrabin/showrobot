@@ -9,6 +9,7 @@ import "github.com/scottrabin/showrobot/datasource"
 import "github.com/scottrabin/showrobot/media"
 import "os"
 import "text/template"
+import "github.com/scottrabin/showrobot/media/riff"
 
 type ResultFormat struct {
 	Extension string
@@ -114,6 +115,26 @@ when run without command line overrides`,
 					} else {
 						os.Rename(m.Source(), buf.String())
 					}
+				}
+			},
+		},
+		{
+			Name:        "riff",
+			Usage:       "display RIFF data",
+			Description: "Display RIFF data",
+			Flags:       []cli.Flag{},
+			Action: func(c *cli.Context) {
+				args := c.Args()
+				//conf := loadConfig(c)
+
+				for _, p := range args {
+					m, err := media.New(p)
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
+
+					riff.DoStuff(m.Source())
 				}
 			},
 		},

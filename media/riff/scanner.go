@@ -21,17 +21,17 @@ func Scan(r io.Reader) Scanner {
 }
 
 // Next attempts to read the next RIFF element from the wrapped io.Reader
-func (s *Scanner) Next() (riffElement, error) {
+func (s *Scanner) Next() (RiffElement, error) {
 	el, _, err := s.next()
 	return el, err
 }
 
 // next reads the next element and returns the amount read from the wrapped
 // io.Reader
-func (s *Scanner) next() (riffElement, int, error) {
+func (s *Scanner) next() (RiffElement, int, error) {
 	var (
 		fcc        FOURCC
-		el         riffElement
+		el         RiffElement
 		flen, elen int
 		err        error
 	)
@@ -60,18 +60,18 @@ func (s *Scanner) next() (riffElement, int, error) {
 //     'RIFF' is the literal FOURCC code 'RIFF'
 //     fileSize is a 4-byte unsigned integer indicating the size of the file
 //     filetype is a FOURCC that identifies the specific file type
-func (s *Scanner) scanHeader() (*riffheader, int, error) {
+func (s *Scanner) scanHeader() (*RiffHeader, int, error) {
 	var (
-		hdr          riffheader
+		hdr          RiffHeader
 		fsLen, ftLen int
 		err          error
 	)
 
-	if hdr.fileSize, fsLen, err = s.scanSize(); err != nil {
+	if hdr.Size, fsLen, err = s.scanSize(); err != nil {
 		return nil, fsLen, err
 	}
 
-	if hdr.fileType, ftLen, err = s.scanFcc(); err != nil {
+	if hdr.Type, ftLen, err = s.scanFcc(); err != nil {
 		return nil, (fsLen + ftLen), err
 	}
 
@@ -87,30 +87,30 @@ func (s *Scanner) scanHeader() (*riffheader, int, error) {
 //     listSize is a 4-byte unsigned integer indicating the size of the list
 //     listType is a FOURCC code
 //     listData is a series of lists or chunks, in any order
-func (s *Scanner) scanList() (*list, int, error) {
+func (s *Scanner) scanList() (*List, int, error) {
 	var (
-		l                   list
+		l                   List
 		lsLen, ltLen, ldLen int
 		err                 error
 	)
 
-	if l.listSize, lsLen, err = s.scanSize(); err != nil {
+	if l.Size, lsLen, err = s.scanSize(); err != nil {
 		return nil, lsLen, err
 	}
 
-	if l.listType, ltLen, err = s.scanFcc(); err != nil {
+	if l.Type, ltLen, err = s.scanFcc(); err != nil {
 		return nil, (lsLen + ltLen), err
 	}
 
 	// the listSize includes the listType length, and listSize
 	// should be equal to the length of the listType and listData
-	for ldLen < int(l.listSize)-ltLen {
+	for ldLen < int(l.Size)-ltLen {
 		el, read, err := s.next()
 		if err != nil {
 			return nil, (lsLen + ltLen + ldLen), err
 		}
 
-		l.listData = append(l.listData, el)
+		l.Data = append(l.Data, el)
 		ldLen = ldLen + read
 	}
 
@@ -126,24 +126,24 @@ func (s *Scanner) scanList() (*list, int, error) {
 //     ckID is a FOURCC that identifies the data contained in the chunk
 //     ckSize is a 4-byte unsigned integer indicating the size of the data
 //     ckData is zero or more bytes of data, padded to the nearest WORD boundary
-func (s *Scanner) scanChunk(id FOURCC) (*chunk, int, error) {
+func (s *Scanner) scanChunk(id FOURCC) (*Chunk, int, error) {
 	var (
-		c              chunk
+		c              Chunk
 		csLen, dataLen int
 		err            error
 	)
-	c.ckID = id
+	c.ID = id
 
-	if c.ckSize, csLen, err = s.scanSize(); err != nil {
+	if c.Size, csLen, err = s.scanSize(); err != nil {
 		return nil, csLen, err
 	}
 
-	if c.ckData, dataLen, err = s.scanData(c.ckSize); err != nil {
+	if c.Data, dataLen, err = s.scanData(c.Size); err != nil {
 		return nil, csLen + dataLen, err
 	}
 
 	// chunks are padded to the nearest WORD boundary, so skip that many bytes
-	pad := c.ckSize % 4
+	pad := c.Size % 4
 	if pad > 0 {
 		io.CopyN(ioutil.Discard, s.r, int64(4-pad))
 	}

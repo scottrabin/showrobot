@@ -8,7 +8,7 @@ import (
 
 // A RIFF element is one of the three components comprising a RIFF file:
 // a RIFF header, a LIST, or a CHUNK
-type riffElement interface {
+type RiffElement interface {
 	fmt.Stringer
 }
 
@@ -21,13 +21,13 @@ type FOURCC [4]byte
 // fileSize is a 4-byte value representing the size of the file (excluding
 //          the 'RIFF' FOURCC or the 4 bytes of fileSize),
 // fileType is a FOURCC that identifies the specific type of file
-type riffheader struct {
-	fileSize uint32
-	fileType FOURCC
+type RiffHeader struct {
+	Size uint32
+	Type FOURCC
 }
 
-func (h *riffheader) String() string {
-	return fmt.Sprintf("RIFF '%s' (%d)", string(h.fileType[:]), h.fileSize)
+func (h *RiffHeader) String() string {
+	return fmt.Sprintf("RIFF '%s' (%d)", string(h.Type[:]), h.Size)
 }
 
 // A chunk has the form `ckID ckSize ckData`, where:
@@ -35,14 +35,14 @@ func (h *riffheader) String() string {
 // ckSize is a 4-byte value representing the size of the data in ckData
 //        (excluding the ckID FOURCC, the 4 bytes of ckSize, or the padding),
 // ckData is 0 or more bytes of data, padded to the nearest WORD boundary
-type chunk struct {
-	ckID   FOURCC
-	ckSize uint32
-	ckData []byte
+type Chunk struct {
+	ID   FOURCC
+	Size uint32
+	Data []byte
 }
 
-func (ck *chunk) String() string {
-	return fmt.Sprintf("'%s' (%d)", string(ck.ckID[:]), ck.ckSize)
+func (ck *Chunk) String() string {
+	return fmt.Sprintf("'%s' (%d)", string(ck.ID[:]), ck.Size)
 }
 
 // A list has the form `'LIST' listSize listType listData, where:
@@ -51,16 +51,16 @@ func (ck *chunk) String() string {
 //          (excluding the 'LIST' FOURCC and listSize),
 // listType is a FOURCC code,
 // listData is an array of chunks or lists, in any order
-type list struct {
-	listSize uint32
-	listType FOURCC
-	listData []riffElement
+type List struct {
+	Size uint32
+	Type FOURCC
+	Data []RiffElement
 }
 
-func (l *list) String() string {
+func (l *List) String() string {
 	var buf bytes.Buffer
-	fmt.Fprintf(&buf, "LIST '%4s' [%d] (\n", l.listType, l.listSize)
-	for _, el := range l.listData {
+	fmt.Fprintf(&buf, "LIST '%4s' [%d] (\n", l.Type, l.Size)
+	for _, el := range l.Data {
 		buf.WriteString("     ")
 		buf.WriteString(el.String())
 		buf.WriteString("\n")

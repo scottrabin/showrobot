@@ -2,13 +2,17 @@ package media
 
 import "time"
 
-type aviMediaFormat struct{}
+var AVI = Codec{
+	Decode: func(mf *MediaFile) (MediaInfo, error) {
+		mi := MediaInfo{
+			// TODO find a way to determine the actual runtime of the file
+			Duration: 90 * time.Minute,
+		}
 
-func (media *aviMediaFormat) Duration(m Media) time.Duration {
-	// TODO find a way to determine the actual runtime of the file
-	return time.Duration(90) * time.Minute
+		return mi, nil
+	},
 }
 
 func init() {
-	Register(".avi", &aviMediaFormat{})
+	RegisterCodec(".avi", &AVI)
 }

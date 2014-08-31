@@ -1,15 +1,17 @@
 package main
 
-import "bytes"
-import "path/filepath"
-import "fmt"
-import "github.com/codegangsta/cli"
-import "github.com/scottrabin/showrobot/config"
-import "github.com/scottrabin/showrobot/datasource"
-import "github.com/scottrabin/showrobot/media"
-import "os"
-import "text/template"
-import "github.com/scottrabin/showrobot/media/riff"
+import (
+	"bytes"
+	"fmt"
+	"github.com/codegangsta/cli"
+	"github.com/scottrabin/showrobot/config"
+	"github.com/scottrabin/showrobot/datasource"
+	"github.com/scottrabin/showrobot/media"
+	"github.com/scottrabin/showrobot/media/riff"
+	"os"
+	"path/filepath"
+	"text/template"
+)
 
 type ResultFormat struct {
 	Extension string
@@ -80,13 +82,9 @@ when run without command line overrides`,
 				}
 
 				for _, p := range args {
-					m, err := media.New(filepath.Join(pwd, p))
-					if err != nil {
-						fmt.Println(err)
-						os.Exit(1)
-					}
+					mf := media.NewFile(filepath.Join(pwd, p))
 
-					mtype, err := getMediaType(c, m)
+					mtype, err := getMediaType(c, mf)
 					if err != nil {
 						fmt.Println(err)
 						os.Exit(1)
@@ -98,22 +96,22 @@ when run without command line overrides`,
 						os.Exit(1)
 					}
 
-					query := getQuery(c, m)
+					query := getQuery(c, mf)
 					matches := ds.GetMovies(query)
-					bestMatch := getBestMatch(c, m, matches)
+					bestMatch := getBestMatch(c, mf, matches)
 
 					// TODO handle errors here
 					tmpl, _ := template.New("movie").Parse(conf.Template.Movie)
 
 					var buf bytes.Buffer
-					tmpl.Execute(&buf, ResultFormat{filepath.Ext(m.Source()), bestMatch})
+					tmpl.Execute(&buf, ResultFormat{filepath.Ext(mf.Source), bestMatch})
 
 					if c.Bool("noop") {
 						// TODO Go doesn't have a way to escape shell arguments because the language
 						// is actually well designed, but it would be nice to format the following anyway...
-						fmt.Printf("mv \"%s\" \"%s\"\n", m.Source(), buf.String())
+						fmt.Printf("mv \"%s\" \"%s\"\n", mf.Source, buf.String())
 					} else {
-						os.Rename(m.Source(), buf.String())
+						os.Rename(mf.Source, buf.String())
 					}
 				}
 			},
@@ -128,13 +126,9 @@ when run without command line overrides`,
 				//conf := loadConfig(c)
 
 				for _, p := range args {
-					m, err := media.New(p)
-					if err != nil {
-						fmt.Println(err)
-						os.Exit(1)
-					}
+					m := media.NewFile(p)
 
-					riff.DoStuff(m.Source())
+					riff.DoStuff(m.Source)
 				}
 			},
 		},
@@ -152,14 +146,14 @@ func loadConfig(ctx *cli.Context) config.Configuration {
 	return conf
 }
 
-func getMediaType(ctx *cli.Context, m media.Media) (media.MediaType, error) {
+func getMediaType(ctx *cli.Context, mf *media.MediaFile) (media.MediaType, error) {
 	switch ctx.String("type") {
 	case "movie":
 		return media.MOVIE, nil
 	case "tvshow":
 		return media.TVSHOW, nil
 	case "auto":
-		return media.GuessType(m), nil
+		return media.GuessType(mf), nil
 	default:
 		return media.UNKNOWN, fmt.Errorf(
 			"`type` flag must be one of `movie`, `tvshow`, or `auto`; got %s\n",
@@ -167,16 +161,16 @@ func getMediaType(ctx *cli.Context, m media.Media) (media.MediaType, error) {
 	}
 }
 
-func getQuery(ctx *cli.Context, m media.Media) string {
+func getQuery(ctx *cli.Context, mf *media.MediaFile) string {
 	if q := ctx.String("query"); len(q) > 0 {
 		return q
 	}
-	return media.GuessName(m)
+	return media.GuessName(mf)
 }
 
-func getBestMatch(ctx *cli.Context, m media.Media, matches []media.Movie) media.Movie {
+func getBestMatch(ctx *cli.Context, mf *media.MediaFile, matches []media.Movie) media.Movie {
 	if ctx.Bool("interactive") {
-		fmt.Printf("Select match for [[ %s ]]\n", m.Source())
+		fmt.Printf("Select match for [[ %s ]]\n", mf.Source)
 		var optBuf bytes.Buffer
 		optTmpl, _ := template.New("movieOption").Parse("{{.Name}} ({{.Year}})")
 		for i, opt := range matches {

@@ -1,62 +1,52 @@
 package media
 
-import "fmt"
-import "path/filepath"
-import "time"
-
-// A Media is a file representing a specific piece of content (Movie or TV show)
-type Media interface {
-	Source() string
-	Format() MediaFormat
-	Duration() time.Duration
-}
-
-// A MediaFormat is an adapter for determining metadata about a Media that
-// cannot be deduced from the filename alone, such as the duration of the content
-type MediaFormat interface {
-	Duration(Media) time.Duration
-}
+import (
+	"path/filepath"
+)
 
 // A MediaFile is a file on disk that contains a piece of content (Movie or
 // TV Show)
 type MediaFile struct {
-	source string
-	format MediaFormat
+	Source string
+	info   *MediaInfo
 }
 
-func (m *MediaFile) Source() string {
-	return m.source
+// NewFile creates a new MediaFile object that represents the given file
+func NewFile(file string) *MediaFile {
+	return &MediaFile{
+		Source: file,
+	}
 }
 
-func (m *MediaFile) Format() MediaFormat {
-	return m.format
-}
-
-func (m *MediaFile) Duration() time.Duration {
-	// this should be overridden by all structs that embed the MediaFile type
-	return m.Format().Duration(m)
-}
-
-func New(file string) (Media, error) {
-	var err error
-
-	unk, _ := mediaFormats[""]
-	mf := &MediaFile{file, unk}
-	ext := filepath.Ext(file)
-
-	format, supported := mediaFormats[ext]
-
-	if supported {
-		mf.format = format
-	} else {
-		err = fmt.Errorf("unknown file extension: %s", ext)
+// Parse uses the given codec to decode the media file and read its information
+// If no codec is specified, the codec registered to the file's extension
+// will be used instead.
+func (mf *MediaFile) Parse(c *Codec) error {
+	if c == nil {
+		var supported bool
+		if c, supported = codecs[filepath.Ext(mf.Source)]; !supported {
+			return ErrNoCodec
+		}
 	}
 
-	return mf, err
+	if info, err := c.Decode(mf); err == nil {
+		mf.info = &info
+	} else {
+		return err
+	}
+
+	return nil
 }
 
-var mediaFormats = make(map[string]MediaFormat)
+// Info retrieves the media info associated with the media file
+// If the media file has not been decoded, Info will first call Parse(nil)
+// on the media file
+func (mf *MediaFile) Info() (*MediaInfo, error) {
+	var err error
 
-func Register(ext string, f MediaFormat) {
-	mediaFormats[ext] = f
+	if mf.info == nil {
+		err = mf.Parse(nil)
+	}
+
+	return mf.info, err
 }

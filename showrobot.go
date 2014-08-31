@@ -13,18 +13,38 @@ import (
 	"text/template"
 )
 
+var (
+	fileFlag = cli.StringFlag{
+		Name:  "file, f",
+		Value: config.GetDefaultConfigurationPath(),
+		Usage: "Use the specified configuration file",
+	}
+	typeFlag = cli.StringFlag{
+		Name:  "type, t",
+		Value: "auto",
+		Usage: "Use the specified type for matching the media file",
+	}
+	queryFlag = cli.StringFlag{
+		Name:  "query, q",
+		Value: "",
+		Usage: "Use the specified string as the search term instead of guessing from the file name",
+	}
+	interactiveFlag = cli.BoolFlag{
+		Name:  "interactive, i",
+		Usage: "Interactively list options to choose from",
+	}
+	noopFlag = cli.BoolFlag{
+		Name:  "noop, n",
+		Usage: "Report the intended action instead of performing it",
+	}
+)
+
 type ResultFormat struct {
 	Extension string
 	Match     media.Movie
 }
 
 func main() {
-	fileFlag := cli.StringFlag{"file, f", config.GetDefaultConfigurationPath(), "Use the specified configuration file"}
-	typeFlag := cli.StringFlag{"type, t", "auto", "Use the specified type for matching the media file"}
-	queryFlag := cli.StringFlag{"query, q", "", "Use the specified string as the search term instead of guessing from the file name"}
-	interactiveFlag := cli.BoolFlag{"interactive, i", "Interactively list options to choose from"}
-	noopFlag := cli.BoolFlag{"noop, n", "Report the intended action instead of performing it"}
-
 	app := cli.NewApp()
 	app.Name = "showrobot"
 	app.Version = "0.0.1"

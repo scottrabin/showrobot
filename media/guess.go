@@ -1,6 +1,7 @@
 package media
 
 import (
+	"fmt"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -46,15 +47,16 @@ func GuessYear(mf *MediaFile) int {
 
 // GuessType attempts to guess the type of a media file (Movie or TV show)
 // based on the duration of the media
-func GuessType(mf *MediaFile) MediaType {
+func GuessType(mf *MediaFile) (MediaType, error) {
 	info, err := mf.Info()
+	fmt.Printf("Info: %v\n", info)
 	switch {
 	case err != nil:
-		return UNKNOWN
+		return UNKNOWN, err
 	case info.Duration >= MOVIE_DURATION:
-		return MOVIE
+		return MOVIE, nil
 	default:
-		return TVSHOW
+		return TVSHOW, nil
 	}
 }
 

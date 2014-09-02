@@ -21,7 +21,7 @@ func NewFile(file string) *MediaFile {
 // Parse uses the given codec to decode the media file and read its information
 // If no codec is specified, the codec registered to the file's extension
 // will be used instead.
-func (mf *MediaFile) Parse(c *Codec) error {
+func (mf *MediaFile) Parse(c Codec) error {
 	if c == nil {
 		var supported bool
 		if c, supported = codecs[filepath.Ext(mf.Source)]; !supported {

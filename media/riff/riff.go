@@ -16,6 +16,11 @@ type RiffElement interface {
 // by concatenating four ASCII characters
 type FOURCC [4]byte
 
+// String casts the FOURCC into a string
+func (fcc *FOURCC) String() string {
+	return string(fcc[:])
+}
+
 // A RIFF header has the form `'RIFF' fileSize fileType data`, where:
 // 'RIFF' is the literal FOURCC 'RIFF' (omitted from the struct),
 // fileSize is a 4-byte value representing the size of the file (excluding

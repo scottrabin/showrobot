@@ -95,14 +95,8 @@ when run without command line overrides`,
 				args := c.Args()
 				conf := loadConfig(c)
 
-				pwd, err := os.Getwd()
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
-
 				for _, p := range args {
-					mf := media.NewFile(filepath.Join(pwd, p))
+					mf := media.NewFile(p)
 
 					mtype, err := getMediaType(c, mf)
 					if err != nil {
@@ -118,13 +112,17 @@ when run without command line overrides`,
 
 					query := getQuery(c, mf)
 					matches := ds.GetMovies(query)
+					if len(matches) == 0 {
+						fmt.Errorf("There are no matches for `%s`\n", query)
+						os.Exit(1)
+					}
 					bestMatch := getBestMatch(c, mf, matches)
 
 					// TODO handle errors here
 					tmpl, _ := template.New("movie").Parse(conf.Template.Movie)
 
 					var buf bytes.Buffer
-					tmpl.Execute(&buf, ResultFormat{filepath.Ext(mf.Source), bestMatch})
+					tmpl.Execute(&buf, ResultFormat{filepath.Ext(mf.Source), *bestMatch})
 
 					if c.Bool("noop") {
 						// TODO Go doesn't have a way to escape shell arguments because the language
@@ -173,7 +171,7 @@ func getMediaType(ctx *cli.Context, mf *media.MediaFile) (media.MediaType, error
 	case "tvshow":
 		return media.TVSHOW, nil
 	case "auto":
-		return media.GuessType(mf), nil
+		return media.GuessType(mf)
 	default:
 		return media.UNKNOWN, fmt.Errorf(
 			"`type` flag must be one of `movie`, `tvshow`, or `auto`; got %s\n",
@@ -188,7 +186,7 @@ func getQuery(ctx *cli.Context, mf *media.MediaFile) string {
 	return media.GuessName(mf)
 }
 
-func getBestMatch(ctx *cli.Context, mf *media.MediaFile, matches []media.Movie) media.Movie {
+func getBestMatch(ctx *cli.Context, mf *media.MediaFile, matches []media.Movie) *media.Movie {
 	if ctx.Bool("interactive") {
 		fmt.Printf("Select match for [[ %s ]]\n", mf.Source)
 		var optBuf bytes.Buffer
@@ -207,10 +205,10 @@ func getBestMatch(ctx *cli.Context, mf *media.MediaFile, matches []media.Movie) 
 				fmt.Println(err)
 			}
 			if 0 < choice && choice < len(matches)+1 {
-				return matches[choice-1]
+				return &matches[choice-1]
 			}
 		}
 	}
 
-	return matches[0]
+	return &matches[0]
 }

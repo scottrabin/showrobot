@@ -7,7 +7,6 @@ import (
 	"github.com/scottrabin/showrobot/config"
 	"github.com/scottrabin/showrobot/datasource"
 	"github.com/scottrabin/showrobot/media"
-	"github.com/scottrabin/showrobot/media/riff"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -135,9 +134,9 @@ when run without command line overrides`,
 			},
 		},
 		{
-			Name:        "riff",
-			Usage:       "display RIFF data",
-			Description: "Display RIFF data",
+			Name:        "info",
+			Usage:       "display media information",
+			Description: "Display media information parsed from the file using the default codec",
 			Flags:       []cli.Flag{},
 			Action: func(c *cli.Context) {
 				args := c.Args()
@@ -146,7 +145,12 @@ when run without command line overrides`,
 				for _, p := range args {
 					m := media.NewFile(p)
 
-					riff.DoStuff(m.Source)
+					info, err := m.Info()
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
+					fmt.Printf("parse result: %#v\n", info)
 				}
 			},
 		},

@@ -150,7 +150,7 @@ when run without command line overrides`,
 						fmt.Println(err)
 						os.Exit(1)
 					}
-					fmt.Printf("parse result: %#v\n", info)
+					fmt.Printf("parse result: %v\n", info)
 				}
 			},
 		},

@@ -28,8 +28,9 @@ type Element struct {
 }
 
 type ElementMeta struct {
-	Name string
-	Type ValueType
+	Name         string
+	Type         ValueType
+	DefaultValue interface{}
 }
 
 const (
@@ -65,11 +66,11 @@ func (el *Element) Value() (interface{}, error) {
 			case 4:
 				var v float32
 				el.parseerror = binary.Read(bytes.NewBuffer(el.value), binary.BigEndian, &v)
-				el.parsedvalue = v
+				el.parsedvalue = float64(v)
 			case 8:
 				var v float64
 				el.parseerror = binary.Read(bytes.NewBuffer(el.value), binary.BigEndian, &v)
-				el.parsedvalue = float64(0)
+				el.parsedvalue = float64(v)
 			default:
 				el.parseerror = ErrInvalidFloatSize
 			}
@@ -92,11 +93,11 @@ func (el *Element) Value() (interface{}, error) {
 
 // Meta returns the element type metadata associated with the element
 func (el *Element) Meta() ElementMeta {
-	if meta, known := ebmlIdMap[el.ID]; known {
+	if meta, known := Elements[el.ID]; known {
 		return meta
 	}
 
-	return ebmlIdMap[ElementUnknown]
+	return Elements[ElementUnknown]
 }
 
 // ReadID takes a byte slice and reads the next ID from the beginning.

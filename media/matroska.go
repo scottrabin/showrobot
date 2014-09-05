@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"syscall"
+	"time"
 )
 
 type matroskaCodec struct{}
@@ -30,6 +31,39 @@ func (m *matroskaCodec) Decode(mf *MediaFile) (MediaInfo, error) {
 
 	els, _ := ebml.ReadElements(mmap)
 	m.PrintElements(els, 0)
+
+	segment := m.findElement(els, ebml.ElementSegment)
+	if segment == nil {
+		return mi, fmt.Errorf("No segment element found")
+	}
+	segmentChildren, err := segment.Value()
+	if err != nil {
+		return mi, err
+	}
+	info := m.findElement(segmentChildren.([]ebml.Element), ebml.ElementInfo)
+	if info == nil {
+		return mi, fmt.Errorf("No info element found")
+	}
+	infoChildren, err := info.Value()
+	if err != nil {
+		return mi, err
+	}
+	timescale := ebml.Elements[ebml.ElementTimecodeScale].DefaultValue.(uint64)
+	timescaleEl := m.findElement(infoChildren.([]ebml.Element), ebml.ElementTimecodeScale)
+	if timescaleEl != nil {
+		ts, _ := timescaleEl.Value()
+		timescale = ts.(uint64)
+	}
+	durationEl := m.findElement(infoChildren.([]ebml.Element), ebml.ElementDuration)
+	if durationEl == nil {
+		return mi, fmt.Errorf("No duration element found")
+	}
+	duration, err := durationEl.Value()
+	if err != nil {
+		return mi, err
+	}
+
+	mi.Duration = time.Duration(uint64(duration.(float64)) * timescale)
 
 	return mi, nil
 }
@@ -59,6 +93,16 @@ func (m *matroskaCodec) PrintElements(els []ebml.Element, depth int) {
 				strings.Repeat(" ", depth*4), el.ID, el.Meta().Name, v)
 		}
 	}
+}
+
+func (m *matroskaCodec) findElement(els []ebml.Element, id ebml.EBMLID) *ebml.Element {
+	for _, el := range els {
+		if el.ID == id {
+			return &el
+		}
+	}
+
+	return nil
 }
 
 func init() {

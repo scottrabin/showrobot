@@ -65,7 +65,7 @@ const (
 	ElementCueRefTime          = 0x96
 )
 
-var ebmlIdMap = map[EBMLID]ElementMeta{
+var Elements = map[EBMLID]ElementMeta{
 	ElementUnknown: ElementMeta{
 		Name: "Unknown", // not part of spec
 		Type: typeGuess,
@@ -184,8 +184,9 @@ var ebmlIdMap = map[EBMLID]ElementMeta{
 		Type: typeBinary,
 	},
 	ElementTimecodeScale: ElementMeta{
-		Name: "TimecodeScale",
-		Type: typeUnsignedInt,
+		Name:         "TimecodeScale",
+		Type:         typeUnsignedInt,
+		DefaultValue: uint64(1000000),
 	},
 	ElementDuration: ElementMeta{
 		Name: "Duration",
